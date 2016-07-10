@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.24720.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReferencesSwitcherForDotNet.Library", "ReferencesSwitcherForDotNet.Library\ReferencesSwitcherForDotNet.Library.csproj", "{03A4F6BE-5EE3-4412-BAEF-309C04A72C12}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReferencesSwitcherForDotNet.Tests", "ReferencesSwitcherForDotNet.Tests\ReferencesSwitcherForDotNet.Tests.csproj", "{F203994F-3AA9-4CC9-9012-655B88CED1F9}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{03A4F6BE-5EE3-4412-BAEF-309C04A72C12}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{03A4F6BE-5EE3-4412-BAEF-309C04A72C12}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{03A4F6BE-5EE3-4412-BAEF-309C04A72C12}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{03A4F6BE-5EE3-4412-BAEF-309C04A72C12}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F203994F-3AA9-4CC9-9012-655B88CED1F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F203994F-3AA9-4CC9-9012-655B88CED1F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F203994F-3AA9-4CC9-9012-655B88CED1F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F203994F-3AA9-4CC9-9012-655B88CED1F9}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
