@@ -41,10 +41,10 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <!--<Reference Include="Project1">
+    <Reference Include="Project1">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Project1\bin\Debug\Project1.dll</HintPath>
-    </Reference>-->
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\Information\SolutionInfo.cs">
@@ -58,12 +58,12 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <!-- Project reference example -->
-  <ItemGroup>
+  <!--<ItemGroup>
     <ProjectReference Include="..\Project1\Project1.csproj">
       <Project>{2D2C117A-7841-4285-A4CE-E7C4FC64AD9B}</Project>
       <Name>Project1</Name>
     </ProjectReference>
-  </ItemGroup>
+  </ItemGroup>-->
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

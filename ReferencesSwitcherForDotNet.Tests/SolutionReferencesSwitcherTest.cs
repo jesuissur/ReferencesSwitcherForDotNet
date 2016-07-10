@@ -15,15 +15,32 @@ namespace ReferencesSwitcherForDotNet.Tests
     [TestFixture]
     public class SolutionReferencesSwitcherTest
     {
+        [SetUp]
+        public void InitializeTest()
+        {
+            ProjectCollection.GlobalProjectCollection.UnloadAllProjects();
+        }
+
         [Test]
         public void Switch_Should_AddProjectReference_When_ReferenceExistsInSolutionForThisProjectOutput()
         {
             var subject = new SolutionReferencesSwitcher();
 
+            AssertProject2HasReferenceToProject1();
+
             subject.Switch(GetSolutionFileFullPath());
 
             var project2 = GetProject2();
-            project2.Should().NotBeNull();
+            var projectReference = project2.Items.FirstOrDefault(x => x.ItemType == "ProjectReference");
+            projectReference.Should().NotBeNull();
+            projectReference.EvaluatedInclude.Should().Be(@"..\Project1\Project1.csproj");
+        }
+        
+        private void AssertProject2HasReferenceToProject1()
+        {
+            var project2 = GetProject2();
+            project2.Items.Should().Contain(x => x.ItemType == "Reference" && x.EvaluatedInclude == "Project1");
+            ProjectCollection.GlobalProjectCollection.UnloadProject(project2);
         }
 
         private Project GetProject2()
