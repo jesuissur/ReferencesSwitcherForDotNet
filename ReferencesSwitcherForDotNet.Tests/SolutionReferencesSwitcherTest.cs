@@ -13,9 +13,11 @@ namespace ReferencesSwitcherForDotNet.Tests
     [TestFixture]
     public class SolutionReferencesSwitcherTest
     {
-        private static string CurrentDir
+
+        [OneTimeSetUp]
+        public static void InitializeTestFixture()
         {
-            get { return Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location); }
+            AssertProject2HasReferenceToProject1();
         }
 
         [SetUp]
@@ -31,15 +33,13 @@ namespace ReferencesSwitcherForDotNet.Tests
             {
                 var subject = new SolutionReferencesSwitcher();
 
-                AssertProject2HasReferenceToProject1(workingDir);
+                subject.Switch(workingDir.GetSolutionFileFullPath());
 
-                subject.Switch(GetSolutionFileFullPath(workingDir));
-
-                var project2 = GetProject2(workingDir);
+                var project1 = workingDir.GetProject1();
+                var project2 = workingDir.GetProject2();
                 var projectReference = project2.Items.FirstOrDefault(x => x.ItemType == "ProjectReference");
                 projectReference.Should().NotBeNull();
                 projectReference.EvaluatedInclude.Should().Be(@"..\Project1\Project1.csproj");
-                var project1 = GetProject1(workingDir);
                 projectReference.GetMetadataValue("Project").Should().Be(project1.Properties.First(x => x.Name == "ProjectGuid").EvaluatedValue);
                 projectReference.GetMetadataValue("Name").Should().Be(project1.Properties.First(x => x.Name == "ProjectName").EvaluatedValue);
             }
@@ -52,57 +52,76 @@ namespace ReferencesSwitcherForDotNet.Tests
             {
                 var subject = new SolutionReferencesSwitcher();
 
-                AssertProject2HasReferenceToProject1(workingDir);
+                subject.Switch(workingDir.GetSolutionFileFullPath());
 
-                subject.Switch(GetSolutionFileFullPath(workingDir));
-
-                var project2 = GetProject2(workingDir);
+                var project2 = workingDir.GetProject2();
                 var reference = project2.Items.FirstOrDefault(x => x.ItemType == "Reference" && x.EvaluatedInclude == "Project1");
                 reference.Should().BeNull();
             }
         }
 
-        private static Project GetProject(string projectName, WorkingDirectory workingDir)
+        private static void AssertProject2HasReferenceToProject1()
         {
-            return new Project(workingDir.Path.PathCombine(projectName, "{0}.csproj".FormatWith(projectName)));
-        }
-
-        private void AssertProject2HasReferenceToProject1(WorkingDirectory workingDir)
-        {
-            var project2 = GetProject2(workingDir);
+            var workingDir = WorkingDirectory.ForTestingFiles();
+            var project2 = workingDir.GetProject2();
             project2.Items.Should().Contain(x => x.ItemType == "Reference" && x.EvaluatedInclude == "Project1");
             ProjectCollection.GlobalProjectCollection.UnloadProject(project2);
         }
 
-        private Project GetProject1(WorkingDirectory workingDir)
-        {
-            return GetProject("Project1", workingDir);
-        }
-
-        private Project GetProject2(WorkingDirectory workingDir)
-        {
-            return GetProject("Project2", workingDir);
-        }
-
-        private string GetSolutionFileFullPath(WorkingDirectory workingDir)
-        {
-            return workingDir.Path.PathCombine("SolutionFile.sln");
-        }
-
         private class WorkingDirectory : IDisposable
         {
+            private readonly string _path;
+
             public WorkingDirectory()
+                : this(Guid.NewGuid().ToString())
             {
-                Path = CurrentDir.PathCombine(Guid.NewGuid().ToString());
-                Directory.CreateDirectory(Path);
-                FileSystem.CopyDirectory(CurrentDir.PathCombine("FilesForTesting"), Path);
             }
 
-            public string Path { get; private set; }
+            private WorkingDirectory(string uniqueDirName)
+            {
+                if (uniqueDirName.IsNullOrWhiteSpace())
+                    _path = CurrentDir;
+                else
+                {
+                    _path = CurrentDir.PathCombine(uniqueDirName);
+                    Directory.CreateDirectory(_path);
+                    FileSystem.CopyDirectory(CurrentDir.PathCombine("FilesForTesting"), _path);
+                }
+        }
+
+            private static string CurrentDir
+            {
+                get { return Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location); }
+            }
 
             public void Dispose()
             {
-                Directory.Delete(Path, true);
+                if (_path != CurrentDir)
+                    Directory.Delete(_path, true);
+            }
+
+            public Project GetProject1()
+            {
+                return GetProject("Project1");
+            }
+
+            public Project GetProject2()
+            {
+                return GetProject("Project2");
+            }
+
+            public string GetSolutionFileFullPath()
+            {
+                return _path.PathCombine("SolutionFile.sln");
+            }
+            private Project GetProject(string projectName)
+            {
+                return new Project(_path.PathCombine(projectName, "{0}.csproj".FormatWith(projectName)));
+            }
+
+            public static WorkingDirectory ForTestingFiles()
+            {
+                return new WorkingDirectory(null);
             }
         }
     }
