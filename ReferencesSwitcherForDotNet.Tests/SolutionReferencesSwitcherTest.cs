@@ -27,19 +27,37 @@ namespace ReferencesSwitcherForDotNet.Tests
         }
 
         [Test]
+        public void Rollback_Should_PutBackPreviousReferences()
+        {
+            using (var workingDir = new WorkingDirectory())
+            {
+                var subject = new SolutionReferencesSwitcher();
+
+                subject.Switch(workingDir.SolutionFileFullPath);
+
+                subject.Rollback(workingDir.SolutionFileFullPath);
+
+                var project2 = workingDir.GetProject2();
+                var reference = GetReference(project2, "Project1");
+                var projectReference = GetProjectReference(project2, "Project1");
+                reference.Should().NotBeNull();
+                projectReference.Should().BeNull();
+            }
+        }
+
+        [Test]
         public void Switch_Should_AddProjectReference_When_ReferenceExistsInSolutionForThisProjectOutput()
         {
             using (var workingDir = new WorkingDirectory())
             {
                 var subject = new SolutionReferencesSwitcher();
 
-                subject.Switch(workingDir.GetSolutionFileFullPath());
+                subject.Switch(workingDir.SolutionFileFullPath);
 
                 var project1 = workingDir.GetProject1();
                 var project2 = workingDir.GetProject2();
-                var projectReference = project2.Items.FirstOrDefault(x => x.ItemType == "ProjectReference");
+                var projectReference = GetProjectReference(project2, "Project1");
                 projectReference.Should().NotBeNull();
-                projectReference.EvaluatedInclude.Should().Be(@"..\Project1\Project1.csproj");
                 projectReference.GetMetadataValue("Project").Should().Be(project1.Properties.First(x => x.Name == "ProjectGuid").EvaluatedValue);
                 projectReference.GetMetadataValue("Name").Should().Be(project1.Properties.First(x => x.Name == "ProjectName").EvaluatedValue);
             }
@@ -52,11 +70,13 @@ namespace ReferencesSwitcherForDotNet.Tests
             {
                 var subject = new SolutionReferencesSwitcher();
 
-                subject.Switch(workingDir.GetSolutionFileFullPath());
+                subject.Switch(workingDir.SolutionFileFullPath);
 
                 var project2 = workingDir.GetProject2();
-                var reference = project2.Items.FirstOrDefault(x => x.ItemType == "Reference" && x.EvaluatedInclude == "Project1");
+                Console.WriteLine(project2.Xml.RawXml);
+                var reference = GetReference(project2, "Project1");
                 reference.Should().BeNull();
+                Console.WriteLine(project2.Xml.RawXml);
             }
         }
 
@@ -68,8 +88,22 @@ namespace ReferencesSwitcherForDotNet.Tests
             ProjectCollection.GlobalProjectCollection.UnloadProject(project2);
         }
 
+        private static ProjectItem GetProjectReference(Project project, string projectName)
+        {
+            return project.Items.FirstOrDefault(x => x.ItemType == "ProjectReference" && 
+                                                     x.EvaluatedInclude == string.Format(@"..\{0}\{0}.csproj", projectName));
+        }
+        private static ProjectItem GetReference(Project project, string projectName)
+        {
+            return project.Items.FirstOrDefault(x => x.ItemType == "Reference" && 
+                                                     x.EvaluatedInclude == projectName);
+        }
+        /// <summary>
+        /// Copy the testing files under a temp folder to isolate those files for each unit test.
+        /// </summary>
         private class WorkingDirectory : IDisposable
         {
+            private const string DirectoryWithFilesForTesting = "FilesForTesting";
             private readonly string _path;
 
             public WorkingDirectory()
@@ -80,18 +114,28 @@ namespace ReferencesSwitcherForDotNet.Tests
             private WorkingDirectory(string uniqueDirName)
             {
                 if (uniqueDirName.IsNullOrWhiteSpace())
-                    _path = CurrentDir;
+                    _path = CurrentDir.PathCombine(DirectoryWithFilesForTesting);
                 else
                 {
                     _path = CurrentDir.PathCombine(uniqueDirName);
                     Directory.CreateDirectory(_path);
-                    FileSystem.CopyDirectory(CurrentDir.PathCombine("FilesForTesting"), _path);
+                    FileSystem.CopyDirectory(CurrentDir.PathCombine(DirectoryWithFilesForTesting), _path);
                 }
         }
+
+            public string SolutionFileFullPath
+            {
+                get { return _path.PathCombine("SolutionFile.sln"); }
+            }
 
             private static string CurrentDir
             {
                 get { return Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location); }
+            }
+
+            public static WorkingDirectory ForTestingFiles()
+            {
+                return new WorkingDirectory(null);
             }
 
             public void Dispose()
@@ -109,19 +153,9 @@ namespace ReferencesSwitcherForDotNet.Tests
             {
                 return GetProject("Project2");
             }
-
-            public string GetSolutionFileFullPath()
-            {
-                return _path.PathCombine("SolutionFile.sln");
-            }
             private Project GetProject(string projectName)
             {
                 return new Project(_path.PathCombine(projectName, "{0}.csproj".FormatWith(projectName)));
-            }
-
-            public static WorkingDirectory ForTestingFiles()
-            {
-                return new WorkingDirectory(null);
             }
         }
     }

@@ -45,6 +45,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Project1\bin\Debug\Project1.dll</HintPath>
     </Reference>
+    <Reference Include="Project4">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Project4\bin\Debug\Project4.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\Information\SolutionInfo.cs">
@@ -56,6 +60,12 @@
     <Compile Include="Options.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Project3\Project3.csproj">
+      <Project>{5B2C117A-7841-4285-A4CE-E7C4FC64ADAC}</Project>
+      <Name>Project3</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
