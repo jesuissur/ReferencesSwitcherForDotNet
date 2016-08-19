@@ -3,4 +3,5 @@ nuget:
   account_feed: true
   project_feed: true
 build:
+  project: ReferencesSwitcherForDotNet.sln
   verbosity: minimal
