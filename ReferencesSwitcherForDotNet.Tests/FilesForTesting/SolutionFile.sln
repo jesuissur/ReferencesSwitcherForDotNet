@@ -5,6 +5,8 @@ VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Project1", "Project1\Project1.csproj", "{2D2C117A-7841-4285-A4CE-E7C4FC64AD9B}"
 EndProject
+Project("{3250E333-8FDC-42A3-9474-1A3956D46DD9}") = "Project3", "Project3\Project3.csproj", "{C3399BDA-7ED5-4CB6-9B44-E835854D3333}"
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{C6A39A77-AEF6-421D-8198-E15821B80F9D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleApplication", "Samples\SampleApplication\SampleApplication.csproj", "{83042F56-9FAD-4827-B542-6873F93D7940}"
@@ -47,6 +49,10 @@ Global
 		{2D2C117A-7841-4285-A4CE-E7C4FC64AD9B}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
 		{2D2C117A-7841-4285-A4CE-E7C4FC64AD9B}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{2D2C117A-7841-4285-A4CE-E7C4FC64AD9B}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{C3399BDA-7ED5-4CB6-9B44-E835854D3333}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{C3399BDA-7ED5-4CB6-9B44-E835854D3333}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{C3399BDA-7ED5-4CB6-9B44-E835854D3333}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{C3399BDA-7ED5-4CB6-9B44-E835854D3333}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{83042F56-9FAD-4827-B542-6873F93D7940}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
 		{83042F56-9FAD-4827-B542-6873F93D7940}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
 		{83042F56-9FAD-4827-B542-6873F93D7940}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU

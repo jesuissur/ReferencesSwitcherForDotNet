@@ -73,11 +73,15 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="FilesForTesting\Project1\Project1.csproj">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="FilesForTesting\Project2\Project2.csproj">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <SubType>Designer</SubType>
+    </Content>
+    <Content Include="FilesForTesting\Project3\Project3.csproj">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="FilesForTesting\SolutionFile.sln">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
