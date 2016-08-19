@@ -5,3 +5,5 @@ nuget:
 build:
   project: ReferencesSwitcherForDotNet.sln
   verbosity: minimal
+before_build:
+  - nuget restore
