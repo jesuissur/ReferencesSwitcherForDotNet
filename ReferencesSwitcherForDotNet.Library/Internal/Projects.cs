@@ -7,8 +7,18 @@ namespace ReferencesSwitcherForDotNet.Library.Internal
 {
     internal class Projects : IDisposable
     {
-
         private readonly ProjectCollection _projects = new ProjectCollection();
+
+        public void Dispose()
+        {
+            _projects.UnloadAllProjects();
+            _projects.Dispose();
+        }
+
+        public Project LoadProject(string projectFullPath)
+        {
+            return _projects.LoadProject(projectFullPath);
+        }
 
         public void UpdateProject(ref Project project, string xml)
         {
@@ -21,17 +31,6 @@ namespace ReferencesSwitcherForDotNet.Library.Internal
         {
             _projects.UnloadAllProjects();
             return LoadProject(project.FullPath);
-        }
-
-        public Project LoadProject(string projectFullPath)
-        {
-            return _projects.LoadProject(projectFullPath);
-        }
-
-        public void Dispose()
-        {
-            _projects.UnloadAllProjects();
-            _projects.Dispose();
         }
     }
 }

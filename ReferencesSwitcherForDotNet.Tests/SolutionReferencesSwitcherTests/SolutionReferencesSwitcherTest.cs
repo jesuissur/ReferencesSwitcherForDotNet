@@ -118,6 +118,23 @@ namespace ReferencesSwitcherForDotNet.Tests.SolutionReferencesSwitcherTests
         }
 
         [Test]
+        public void Switch_Should_IgnoreReference_When_ProjectIgnorePatternsAreSet()
+        {
+            using (var unitOfWork = new UnitOfWork())
+            {
+                var subject = new SolutionReferencesSwitcher(unitOfWork.Configuration);
+
+                unitOfWork.Configuration.ProjectNameIgnorePatterns.Add("ject1");
+
+                subject.Switch(unitOfWork.SolutionFileFullPath);
+
+                var project2 = unitOfWork.GetProject3();
+                project2.GetReference("Project1").Should().NotBeNull("because the project1 should have been ignored");
+                project2.GetReference("Project2").Should().BeNull("because the project2 should NOT have been ignored");
+            }
+        }
+
+        [Test]
         public void Switch_Should_RemoveReferenceToProject_When_ReferenceExistsInSolutionForThisProjectOutput()
         {
             using (var unitOfWork = new UnitOfWork())

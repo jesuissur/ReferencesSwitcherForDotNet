@@ -31,6 +31,17 @@ namespace ReferencesSwitcherForDotNet.Library.Internal
             }
         }
 
+        private void EnsureProjectIsSetbackToReadOnly(Project project)
+        {
+            var repository = new Repository(_config);
+            if (repository.ProjectWasReadOnly(project))
+            {
+                if (repository.ContentHasNotChange(project))
+                    FileSystem.SetFileAsReadOnly(project.FullPath);
+                repository.RemoveReadOnlyStatusForProject(project);
+            }
+        }
+
         private bool ProjectHasBeenSwitched(string projectPath, out string xml)
         {
             xml = File.ReadAllText(projectPath, Encoding.UTF8);
@@ -54,17 +65,7 @@ namespace ReferencesSwitcherForDotNet.Library.Internal
             var project = _projects.LoadProject(projectPath);
             var projectReferenceNamesToRemove = RollbackReferences(xml, ref project);
             RemoveProjectReferences(projectReferenceNamesToRemove, project);
-            EnsureProjectIsSetbackToReadOnlyIfItWas(project);
-        }
-
-        private void EnsureProjectIsSetbackToReadOnlyIfItWas(Project project)
-        {
-            var repository = new Repository(_config);
-            if (repository.ProjectWasReadOnlyAndContentHasNotChange(project))
-            {
-                repository.RemoveReadOnlyStatusForProject(project);
-                FileSystem.SetFileAsReadOnly(project.FullPath);
-            }
+            EnsureProjectIsSetbackToReadOnly(project);
         }
 
         private List<string> RollbackReferences(string xml, ref Project project)

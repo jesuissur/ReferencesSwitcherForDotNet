@@ -21,7 +21,10 @@ namespace ReferencesSwitcherForDotNet.Tests
             _path = CurrentDir.PathCombine(Guid.NewGuid().ToString());
             Directory.CreateDirectory(_path);
             FileSystem.CopyDirectory(CurrentDir.PathCombine(DirectoryWithFilesForTesting), _path);
+            Configuration = new Configuration {DatabaseFileName = _path.PathCombine("dbFileName.txt")};
         }
+
+        public Configuration Configuration { get; }
 
         public string SolutionFileFullPath
         {
@@ -32,8 +35,6 @@ namespace ReferencesSwitcherForDotNet.Tests
         {
             get { return Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location); }
         }
-
-        public Configuration Configuration  => new Configuration() {DatabaseFileName = _path.PathCombine("dbFileName.txt")} ;
 
         public void Dispose()
         {
@@ -69,9 +70,24 @@ namespace ReferencesSwitcherForDotNet.Tests
             return xml;
         }
 
+        public bool Project2IsReadOnly()
+        {
+            return ProjectIsReadOnly("Project2");
+        }
+
+        public bool Project3IsReadOnly()
+        {
+            return ProjectIsReadOnly("Project3");
+        }
+
         public void SetProject2AsReadOnly()
         {
-            File.SetAttributes(GetProjectPath("Project2"), FileAttributes.ReadOnly);
+            SetProjectAsReadOnly("Project2");
+        }
+
+        public void SetProject3AsReadOnly()
+        {
+            SetProjectAsReadOnly("Project3");
         }
 
         private Project GetProject(string projectName)
@@ -79,20 +95,26 @@ namespace ReferencesSwitcherForDotNet.Tests
             return _projects.LoadProject(GetProjectPath(projectName));
         }
 
-        private string GetProjectPath(string projectName)
+        private string GetProjectPath(string projectName, string folderName = null)
         {
-            return _path.PathCombine(projectName, $"{projectName}.csproj");
+            return _path.PathCombine(folderName ?? projectName, $"{projectName}.csproj");
+        }
+
+        private bool ProjectIsReadOnly(string projectName)
+        {
+            return (File.GetAttributes(GetProjectPath(projectName)) & FileAttributes.ReadOnly) == FileAttributes.ReadOnly;
         }
 
         private void RemoveReadOnlyAttributes()
         {
-            for (int i = 1; i <= 3; i++)
+            for (var i = 1; i <= 3; i++)
                 File.SetAttributes(GetProjectPath($"Project{i}"), FileAttributes.Normal);
         }
 
-        public bool Project2IsReadOnly()
+        private void SetProjectAsReadOnly(string projectName)
         {
-            return (File.GetAttributes(GetProjectPath("Project2")) & FileAttributes.ReadOnly) == FileAttributes.ReadOnly;
+            var anotherAttribute = FileAttributes.Temporary;
+            File.SetAttributes(GetProjectPath(projectName), FileAttributes.ReadOnly | anotherAttribute);
         }
     }
 }

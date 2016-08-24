@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 
-[assembly: AssemblyTitle("ReferencesSwitcherForDotNet.Library")]
+[assembly: AssemblyTitle("ReferencesSwitcherForDotNet.App.Console")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("ReferencesSwitcherForDotNet.Library")]
+[assembly: AssemblyProduct("ReferencesSwitcherForDotNet.App.Console")]
 [assembly: AssemblyCopyright("Copyright ©  2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -22,7 +22,7 @@ using System.Runtime.InteropServices;
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 
-[assembly: Guid("03a4f6be-5ee3-4412-baef-309c04a72c12")]
+[assembly: Guid("6e8173c7-c034-4936-97de-5db5d5e8ecae")]
 
 // Version information for an assembly consists of the following four values:
 //

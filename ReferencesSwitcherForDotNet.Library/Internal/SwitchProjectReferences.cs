@@ -13,11 +13,13 @@ namespace ReferencesSwitcherForDotNet.Library.Internal
         private readonly Configuration _config;
         private readonly IUserInteraction _userInteraction;
         private Projects _projects;
+        private readonly Repository _repository;
 
         public SwitchProjectReferences(IUserInteraction userInteraction, Configuration config)
         {
             _userInteraction = userInteraction;
             _config = config;
+            _repository = new Repository(_config);
         }
 
         public void Switch(string solutionFullPath)
@@ -31,20 +33,22 @@ namespace ReferencesSwitcherForDotNet.Library.Internal
             }
         }
 
-        private bool UserGiveHisApprobation(List<ProjectInSolution> solutionProjects)
+        private void AddProjectReference(ProjectInSolution matchedSolutionProject, ProjectInSolution solutionProject, Project project)
         {
-            if (AtLeastOneProjectIsReadOnly(solutionProjects))
-                if (!_userInteraction.AskQuestion("At least one project file is read only.  Do you accept to remove the readonly attribute on those files?"))
-                {
-                    _userInteraction.DisplayMessage("The operation has stopped. Remove the readonly attribute before trying again.");
-                    return false;
-                }
-            return true;
+            var metadata = GetMetadataForProjectReference(matchedSolutionProject);
+            var relativePath = GetRelativePathForProjectReference(solutionProject, matchedSolutionProject);
+            project.AddItem("ProjectReference", relativePath, metadata);
         }
 
         private bool AtLeastOneProjectIsReadOnly(List<ProjectInSolution> solutionProjects)
         {
-            return solutionProjects.Any(x => File.GetAttributes(x.AbsolutePath) == FileAttributes.ReadOnly);
+            return solutionProjects.Any(x => FileSystem.IsReadOnly(x.AbsolutePath));
+        }
+
+        private void EnsureProjectIsNotReadOnly(Project project)
+        {
+            if (FileSystem.SetFileAsWritable(project.FullPath))
+                _repository.RememberReadonlyStatusForProject(project);
         }
 
         private IEnumerable<ProjectInSolution> GetExistingProjects(SolutionFile solution)
@@ -54,13 +58,6 @@ namespace ReferencesSwitcherForDotNet.Library.Internal
                     yield return solutionProject;
         }
 
-        private void AddProjectReference(ProjectInSolution matchedSolutionProject, ProjectInSolution solutionProject, Project project)
-        {
-            var metadata = GetMetadataForProjectReference(matchedSolutionProject);
-            var relativePath = GetRelativePathForProjectReference(solutionProject, matchedSolutionProject);
-            project.AddItem("ProjectReference", relativePath, metadata);
-        }
-
         private List<KeyValuePair<string, string>> GetMetadataForProjectReference(ProjectInSolution matchedSolutionProject)
         {
             return new List<KeyValuePair<string, string>>
@@ -68,6 +65,12 @@ namespace ReferencesSwitcherForDotNet.Library.Internal
                        new KeyValuePair<string, string>("Project", matchedSolutionProject.ProjectGuid),
                        new KeyValuePair<string, string>("Name", matchedSolutionProject.ProjectName)
                    };
+        }
+
+        private IEnumerable<ProjectItem> GetReferences(Project project)
+        {
+            return project.Items.Where(x => (x.ItemType == "Reference") &&
+                                            _config.ProjectNameShouldNotBeIgnored(x.EvaluatedInclude)).ToList();
         }
 
         private string GetRelativePathForProjectReference(ProjectInSolution solutionProject, ProjectInSolution matchedSolutionProject)
@@ -89,7 +92,7 @@ namespace ReferencesSwitcherForDotNet.Library.Internal
         private void SwitchReferencesForProjectReferences(ProjectInSolution solutionProject, SolutionFile solution)
         {
             var project = _projects.LoadProject(solutionProject.AbsolutePath);
-            foreach (var referenceItem in project.Items.Where(x => x.ItemType == "Reference").ToList())
+            foreach (var referenceItem in GetReferences(project))
             {
                 var matchedSolutionProject = solution.ProjectsInOrder.FirstOrDefault(x => x.ProjectName == referenceItem.EvaluatedInclude);
                 if (matchedSolutionProject != null)
@@ -105,10 +108,15 @@ namespace ReferencesSwitcherForDotNet.Library.Internal
             HideReference(ref project, referenceItem);
         }
 
-        private void EnsureProjectIsNotReadOnly(Project project)
+        private bool UserGiveHisApprobation(List<ProjectInSolution> solutionProjects)
         {
-            if (FileSystem.SetFileAsWritable(project.FullPath))
-                new Repository(_config).RememberReadonlyStatusForProject(project);
+            if (AtLeastOneProjectIsReadOnly(solutionProjects))
+                if (!_userInteraction.AskQuestion("At least one project file is read only.  Do you accept to remove the readonly attribute on those files?"))
+                {
+                    _userInteraction.DisplayMessage("The operation has stopped. Remove the readonly attribute before trying again.");
+                    return false;
+                }
+            return true;
         }
     }
 }

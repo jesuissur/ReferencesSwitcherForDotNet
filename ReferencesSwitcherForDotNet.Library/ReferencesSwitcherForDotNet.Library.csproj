@@ -56,11 +56,11 @@
     <Compile Include="ConsoleUserInteraction.cs" />
     <Compile Include="Internal\FileSystem.cs" />
     <Compile Include="Internal\Projects.cs" />
-    <Compile Include="Internal\ProjectStatus.cs" />
     <Compile Include="Internal\Repository.cs" />
     <Compile Include="Internal\RollbackProjectReferences.cs" />
     <Compile Include="Internal\SwitchProjectReferences.cs" />
     <Compile Include="IUserInteraction.cs" />
+    <Compile Include="ProjectStatus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SolutionReferencesSwitcher.cs" />
   </ItemGroup>

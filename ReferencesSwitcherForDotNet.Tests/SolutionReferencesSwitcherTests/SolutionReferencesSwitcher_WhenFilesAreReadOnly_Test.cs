@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using FluentAssertions;
 using Microsoft.Build.Evaluation;
 using NSubstitute;
@@ -10,19 +11,6 @@ namespace ReferencesSwitcherForDotNet.Tests.SolutionReferencesSwitcherTests
     [TestFixture]
     public class SolutionReferencesSwitcher_WhenFilesAreReadOnly_Test
     {
-        private static void VerifySwitchHasBeenDone(UnitOfWork unitOfWork)
-        {
-            var project2 = unitOfWork.GetProject2();
-            var reference = project2.GetReference("Project1");
-            reference.Should().BeNull();
-        }
-
-        private void ChangeSomethingInProjectFile(Project project)
-        {
-            var contenu = File.ReadAllText(project.FullPath);
-            File.WriteAllText(project.FullPath, contenu.Replace("<WarningLevel>4</WarningLevel>", "<WarningLevel>3</WarningLevel>"));
-        }
-
         [Test]
         public void Rollback_Should_NotSetBackReadOnly_When_OtherChangesHasBeenDone()
         {
@@ -50,13 +38,33 @@ namespace ReferencesSwitcherForDotNet.Tests.SolutionReferencesSwitcherTests
                 var userInteraction = Substitute.For<IUserInteraction>();
                 var subject = new SolutionReferencesSwitcher(userInteraction, unitOfWork.Configuration);
 
-                userInteraction.AskQuestion(Arg.Is<string>(x => x.ContainsAll("read", "only"))).Returns(true);
+                userInteraction.AskQuestion(Arg.Any<string>()).Returns(true);
                 unitOfWork.SetProject2AsReadOnly();
 
                 subject.Switch(unitOfWork.SolutionFileFullPath);
                 subject.Rollback(unitOfWork.SolutionFileFullPath);
 
                 unitOfWork.Project2IsReadOnly().Should().BeTrue();
+            }
+        }
+
+        [Test]
+        public void Rollback_Should_SetBackReadOnly_When_NoOtherChangesHasBeenDoneOnMultipleProjects()
+        {
+            using (var unitOfWork = new UnitOfWork())
+            {
+                var userInteraction = Substitute.For<IUserInteraction>();
+                var subject = new SolutionReferencesSwitcher(userInteraction, unitOfWork.Configuration);
+
+                userInteraction.AskQuestion(Arg.Any<string>()).Returns(true);
+                unitOfWork.SetProject2AsReadOnly();
+                unitOfWork.SetProject3AsReadOnly();
+
+                subject.Switch(unitOfWork.SolutionFileFullPath);
+                subject.Rollback(unitOfWork.SolutionFileFullPath);
+
+                unitOfWork.Project2IsReadOnly().Should().BeTrue();
+                unitOfWork.Project3IsReadOnly().Should().BeTrue();
             }
         }
 
@@ -93,6 +101,19 @@ namespace ReferencesSwitcherForDotNet.Tests.SolutionReferencesSwitcherTests
                 unitOfWork.Project2IsReadOnly().Should().BeFalse();
                 VerifySwitchHasBeenDone(unitOfWork);
             }
+        }
+
+        private static void VerifySwitchHasBeenDone(UnitOfWork unitOfWork)
+        {
+            var project2 = unitOfWork.GetProject2();
+            var reference = project2.GetReference("Project1");
+            reference.Should().BeNull();
+        }
+
+        private void ChangeSomethingInProjectFile(Project project)
+        {
+            var contenu = File.ReadAllText(project.FullPath);
+            File.WriteAllText(project.FullPath, contenu.Replace("<WarningLevel>4</WarningLevel>", "<WarningLevel>3</WarningLevel>"));
         }
     }
 }
