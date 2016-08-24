@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ReferencesSwitcherForDotNet.Tests</RootNamespace>
     <AssemblyName>ReferencesSwitcherForDotNet.Tests</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -65,8 +65,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="SolutionReferencesSwitcherTest.cs" />
+    <Compile Include="ProjectExtensions.cs" />
+    <Compile Include="SolutionReferencesSwitcherTests\SolutionReferencesSwitcherTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SolutionReferencesSwitcherTests\SolutionReferencesSwitcher_WhenFilesAreReadOnly_Test.cs" />
+    <Compile Include="UnitOfWork.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

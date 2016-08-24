@@ -10,17 +10,48 @@ namespace ReferencesSwitcherForDotNet.Library.Internal
 {
     internal class SwitchProjectReferences
     {
+        private readonly Configuration _config;
+        private readonly IUserInteraction _userInteraction;
         private Projects _projects;
+
+        public SwitchProjectReferences(IUserInteraction userInteraction, Configuration config)
+        {
+            _userInteraction = userInteraction;
+            _config = config;
+        }
 
         public void Switch(string solutionFullPath)
         {
             using (_projects = new Projects())
             {
                 var solution = SolutionFile.Parse(solutionFullPath);
-                foreach (var solutionProject in solution.ProjectsInOrder)
-                    if (File.Exists(solutionProject.AbsolutePath))
-                        SwitchReferencesForProjectReferences(solutionProject, solution);
+                var solutionProjects = GetExistingProjects(solution).ToList();
+                if (UserGiveHisApprobation(solutionProjects))
+                    solutionProjects.ForEach(x => SwitchReferencesForProjectReferences(x, solution));
             }
+        }
+
+        private bool UserGiveHisApprobation(List<ProjectInSolution> solutionProjects)
+        {
+            if (AtLeastOneProjectIsReadOnly(solutionProjects))
+                if (!_userInteraction.AskQuestion("At least one project file is read only.  Do you accept to remove the readonly attribute on those files?"))
+                {
+                    _userInteraction.DisplayMessage("The operation has stopped. Remove the readonly attribute before trying again.");
+                    return false;
+                }
+            return true;
+        }
+
+        private bool AtLeastOneProjectIsReadOnly(List<ProjectInSolution> solutionProjects)
+        {
+            return solutionProjects.Any(x => File.GetAttributes(x.AbsolutePath) == FileAttributes.ReadOnly);
+        }
+
+        private IEnumerable<ProjectInSolution> GetExistingProjects(SolutionFile solution)
+        {
+            foreach (var solutionProject in solution.ProjectsInOrder)
+                if (File.Exists(solutionProject.AbsolutePath))
+                    yield return solutionProject;
         }
 
         private void AddProjectReference(ProjectInSolution matchedSolutionProject, ProjectInSolution solutionProject, Project project)
@@ -68,9 +99,16 @@ namespace ReferencesSwitcherForDotNet.Library.Internal
 
         private void SwitchReferenceWithProjectReference(ProjectInSolution matchedSolutionProject, ProjectInSolution solutionProject, ref Project project, ProjectItem referenceItem)
         {
+            EnsureProjectIsNotReadOnly(project);
             AddProjectReference(matchedSolutionProject, solutionProject, project);
             project.Save();
             HideReference(ref project, referenceItem);
+        }
+
+        private void EnsureProjectIsNotReadOnly(Project project)
+        {
+            if (FileSystem.SetFileAsWritable(project.FullPath))
+                new Repository(_config).RememberReadonlyStatusForProject(project);
         }
     }
 }

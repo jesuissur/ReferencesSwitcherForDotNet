@@ -13,7 +13,14 @@ namespace ReferencesSwitcherForDotNet.Library.Internal
         private static readonly Regex HiddenProjectReferencesRegex = new Regex(@"<!-- {0}(?<content>.*?Include=""(?<projectName>.*?)"".*?)-->".FormatWith(SolutionReferencesSwitcher.Comment),
                                                                                RegexOptions.IgnoreCase | RegexOptions.Singleline);
 
+        private readonly Configuration _config;
+
         private Projects _projects;
+
+        public RollbackProjectReferences(Configuration config)
+        {
+            _config = config;
+        }
 
         public void Rollback(string solutionFullPath)
         {
@@ -34,8 +41,8 @@ namespace ReferencesSwitcherForDotNet.Library.Internal
         {
             foreach (var projectReferenceName in projectReferenceNamesToRemove)
             {
-                var projectReference = project.Items.FirstOrDefault(x => x.ItemType == "ProjectReference" &&
-                                                                         x.Metadata.Any(m => m.Name == "Name" && m.EvaluatedValue == projectReferenceName));
+                var projectReference = project.Items.FirstOrDefault(x => (x.ItemType == "ProjectReference") &&
+                                                                         x.Metadata.Any(m => (m.Name == "Name") && (m.EvaluatedValue == projectReferenceName)));
                 if (projectReference != null)
                     project.RemoveItem(projectReference);
             }
@@ -47,6 +54,17 @@ namespace ReferencesSwitcherForDotNet.Library.Internal
             var project = _projects.LoadProject(projectPath);
             var projectReferenceNamesToRemove = RollbackReferences(xml, ref project);
             RemoveProjectReferences(projectReferenceNamesToRemove, project);
+            EnsureProjectIsSetbackToReadOnlyIfItWas(project);
+        }
+
+        private void EnsureProjectIsSetbackToReadOnlyIfItWas(Project project)
+        {
+            var repository = new Repository(_config);
+            if (repository.ProjectWasReadOnlyAndContentHasNotChange(project))
+            {
+                repository.RemoveReadOnlyStatusForProject(project);
+                FileSystem.SetFileAsReadOnly(project.FullPath);
+            }
         }
 
         private List<string> RollbackReferences(string xml, ref Project project)
@@ -59,6 +77,7 @@ namespace ReferencesSwitcherForDotNet.Library.Internal
             _projects.UpdateProject(ref project, xml);
             return projectReferenceNamesToRemove;
         }
+
         private void RollbackSolutionProjects(SolutionFile solution)
         {
             foreach (var solutionProject in solution.ProjectsInOrder.Where(x => File.Exists(x.AbsolutePath)))
