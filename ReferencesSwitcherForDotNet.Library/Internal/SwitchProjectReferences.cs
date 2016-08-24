@@ -70,7 +70,7 @@ namespace ReferencesSwitcherForDotNet.Library.Internal
         private IEnumerable<ProjectItem> GetReferences(Project project)
         {
             return project.Items.Where(x => (x.ItemType == "Reference") &&
-                                            _config.ProjectNameShouldNotBeIgnored(x.EvaluatedInclude)).ToList();
+                                            _config.ProjectNameShouldNotBeIgnored(x.GetEvaluatedIncludeForProjectShortName())).ToList();
         }
 
         private string GetRelativePathForProjectReference(ProjectInSolution solutionProject, ProjectInSolution matchedSolutionProject)
@@ -94,7 +94,7 @@ namespace ReferencesSwitcherForDotNet.Library.Internal
             var project = _projects.LoadProject(solutionProject.AbsolutePath);
             foreach (var referenceItem in GetReferences(project))
             {
-                var matchedSolutionProject = solution.ProjectsInOrder.FirstOrDefault(x => x.ProjectName == referenceItem.EvaluatedInclude);
+                var matchedSolutionProject = solution.ProjectsInOrder.FirstOrDefault(x => x.ProjectName == referenceItem.GetEvaluatedIncludeForProjectShortName());
                 if (matchedSolutionProject != null)
                     SwitchReferenceWithProjectReference(matchedSolutionProject, solutionProject, ref project, referenceItem);
             }

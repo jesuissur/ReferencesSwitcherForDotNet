@@ -70,7 +70,6 @@ namespace ReferencesSwitcherForDotNet.Tests.SolutionReferencesSwitcherTests
                 var subject = new SolutionReferencesSwitcher(unitOfWork.Configuration);
 
                 subject.Switch(unitOfWork.SolutionFileFullPath);
-
                 subject.Rollback(unitOfWork.SolutionFileFullPath);
 
                 var project2 = unitOfWork.GetProject2();
@@ -109,7 +108,6 @@ namespace ReferencesSwitcherForDotNet.Tests.SolutionReferencesSwitcherTests
                 subject.Switch(unitOfWork.SolutionFileFullPath);
 
                 var projectWithMultipleProjectsToSwitch = unitOfWork.GetProject3();
-                Console.WriteLine(projectWithMultipleProjectsToSwitch.Xml.RawXml);
                 projectWithMultipleProjectsToSwitch.GetProjectReference("Project1").Should().NotBeNull();
                 projectWithMultipleProjectsToSwitch.GetProjectReference("Project2").Should().NotBeNull();
                 projectWithMultipleProjectsToSwitch.GetReference("Project1").Should().BeNull();

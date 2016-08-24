@@ -10,7 +10,7 @@ namespace ReferencesSwitcherForDotNet.Library.Internal
 {
     internal class RollbackProjectReferences
     {
-        private static readonly Regex HiddenProjectReferencesRegex = new Regex(@"<!-- {0}(?<content>.*?Include=""(?<projectName>.*?)"".*?)-->".FormatWith(SolutionReferencesSwitcher.Comment),
+        private static readonly Regex HiddenProjectReferencesRegex = new Regex(@"<!-- {0}(?<content>.*?Include=""(?<projectName>.*?)["",].*?)-->".FormatWith(SolutionReferencesSwitcher.Comment),
                                                                                RegexOptions.IgnoreCase | RegexOptions.Singleline);
 
         private readonly Configuration _config;
