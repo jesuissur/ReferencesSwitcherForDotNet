@@ -1,6 +1,6 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using FluentAssertions;
+using NSubstitute;
 using NUnit.Framework;
 using ReferencesSwitcherForDotNet.Library;
 
@@ -23,6 +23,24 @@ namespace ReferencesSwitcherForDotNet.Tests.SolutionReferencesSwitcherTests
 
                 var projectXmlAfterRollback = unitOfWork.GetXmlForProject3();
                 projectXmlAfterRollback.Should().Be(projectXml);
+            }
+        }
+
+        [Test]
+        public void Rollback_Should_DoNothing_When_NoWayBackWasAsked()
+        {
+            using (var unitOfWork = new UnitOfWork())
+            {
+                var userInteraction = Substitute.For<IUserInteraction>();
+                var subject = new SolutionReferencesSwitcher(userInteraction, unitOfWork.Configuration);
+
+                unitOfWork.Configuration.ShouldLeaveNoWayBack = true;
+                userInteraction.AskQuestion(Arg.Any<string>()).Returns(true);
+
+                subject.Switch(unitOfWork.SolutionFileFullPath);
+                subject.Rollback(unitOfWork.SolutionFileFullPath);
+
+                VerifyRollbackHasNotBeenDone(unitOfWork);
             }
         }
 
@@ -99,6 +117,40 @@ namespace ReferencesSwitcherForDotNet.Tests.SolutionReferencesSwitcherTests
         }
 
         [Test]
+        public void Switch_Should_AskForConfirmation_When_NoWayBackIsAsked()
+        {
+            using (var unitOfWork = new UnitOfWork())
+            {
+                var userInteraction = Substitute.For<IUserInteraction>();
+                var subject = new SolutionReferencesSwitcher(userInteraction, unitOfWork.Configuration);
+
+                unitOfWork.Configuration.ShouldLeaveNoWayBack = true;
+
+                subject.Switch(unitOfWork.SolutionFileFullPath);
+
+                userInteraction.Received().AskQuestion(Arg.Is<string>(x => x.ContainsAll("rollback", "possib")));
+            }
+        }
+
+        [Test]
+        public void Switch_Should_DoNothing_When_NoWayBackIsAskedButRefused()
+        {
+            using (var unitOfWork = new UnitOfWork())
+            {
+                var userInteraction = Substitute.For<IUserInteraction>();
+                var subject = new SolutionReferencesSwitcher(userInteraction, unitOfWork.Configuration);
+
+                unitOfWork.Configuration.ShouldLeaveNoWayBack = true;
+                userInteraction.AskQuestion(Arg.Is<string>(x => x.ToLower().ContainsAll("rollback", "possib"))).Returns(false);
+
+                subject.Switch(unitOfWork.SolutionFileFullPath);
+
+                VerifySwitchHasNotBeenDone(unitOfWork);
+                userInteraction.Received().DisplayMessage(Arg.Is<string>(x => x.ToLower().ContainsAll("try", "again")));
+            }
+        }
+
+        [Test]
         public void Switch_Should_HandleMultipleProjects()
         {
             using (var unitOfWork = new UnitOfWork())
@@ -145,6 +197,20 @@ namespace ReferencesSwitcherForDotNet.Tests.SolutionReferencesSwitcherTests
                 var reference = project2.GetReference("Project1");
                 reference.Should().BeNull();
             }
+        }
+
+        private static void VerifyRollbackHasNotBeenDone(UnitOfWork unitOfWork)
+        {
+            var project2 = unitOfWork.GetProject2();
+            var reference = project2.GetProjectReference("Project1");
+            reference.Should().NotBeNull();
+        }
+
+        private static void VerifySwitchHasNotBeenDone(UnitOfWork unitOfWork)
+        {
+            var project2 = unitOfWork.GetProject2();
+            var reference = project2.GetReference("Project1");
+            reference.Should().NotBeNull();
         }
     }
 }

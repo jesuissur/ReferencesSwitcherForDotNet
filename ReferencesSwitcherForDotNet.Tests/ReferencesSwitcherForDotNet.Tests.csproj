@@ -65,6 +65,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ArgumentsTests.cs" />
     <Compile Include="ProjectExtensions.cs" />
     <Compile Include="ProjectStatusTest.cs" />
     <Compile Include="SolutionReferencesSwitcherTests\SolutionReferencesSwitcherTest.cs" />

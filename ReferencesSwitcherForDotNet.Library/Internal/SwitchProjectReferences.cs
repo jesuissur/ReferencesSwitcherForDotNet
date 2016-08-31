@@ -11,9 +11,9 @@ namespace ReferencesSwitcherForDotNet.Library.Internal
     internal class SwitchProjectReferences
     {
         private readonly Configuration _config;
+        private readonly Repository _repository;
         private readonly IUserInteraction _userInteraction;
         private Projects _projects;
-        private readonly Repository _repository;
 
         public SwitchProjectReferences(IUserInteraction userInteraction, Configuration config)
         {
@@ -105,10 +105,29 @@ namespace ReferencesSwitcherForDotNet.Library.Internal
             EnsureProjectIsNotReadOnly(project);
             AddProjectReference(matchedSolutionProject, solutionProject, project);
             project.Save();
-            HideReference(ref project, referenceItem);
+            if (_config.ShouldLeaveNoWayBack)
+                project.RemoveItem(referenceItem);
+            else
+                HideReference(ref project, referenceItem);
         }
 
         private bool UserGiveHisApprobation(List<ProjectInSolution> solutionProjects)
+        {
+            return UserWantsToOverrideReadonlyFiles(solutionProjects) && UserWantsToBurnBridges();
+        }
+
+        private bool UserWantsToBurnBridges()
+        {
+            if (_config.ShouldLeaveNoWayBack)
+                if (!_userInteraction.AskQuestion("Are you sure you want to remove the possibility to rollback your changes?"))
+                {
+                    _userInteraction.DisplayMessage("The operation has stopped because you want to be able to rollback your changes. Try again with the right configuration.");
+                    return false;
+                }
+            return true;
+        }
+
+        private bool UserWantsToOverrideReadonlyFiles(List<ProjectInSolution> solutionProjects)
         {
             if (AtLeastOneProjectIsReadOnly(solutionProjects))
                 if (!_userInteraction.AskQuestion("At least one project file is read only.  Do you accept to remove the readonly attribute on those files?"))
