@@ -36,12 +36,12 @@ namespace ReferencesSwitcherForDotNet.Library
             help.AppendLineFormat("Arguments for the References Switcher");
             help.AppendLineFormat("#####################################");
             help.AppendLineFormat("");
-            help.AppendLineFormat(@"-?|help");
-            help.AppendLineFormat(@"-s[olutions]=""C:\FullPath\To\Solution.sln""");
-            help.AppendLineFormat(@"-switch");
-            help.AppendLineFormat(@"-rollback");
-            help.AppendLineFormat(@"-ips|ignorePatterns=PartOfProjectNameToIgnore1,AnotherPart,...");
-            help.AppendLineFormat(@"-noWayBack    The switch operation is not going to support the rollback operation.  There is no way back :)");
+            help.AppendLineFormat("-?|help\t\tDisplay this helpful documentation");
+            help.AppendLineFormat(@"-s[olutions]=""C:\FullPath\To\Solution.sln[,C:\FullPath\To\AnotherSolution.sln,...]""");
+            help.AppendLineFormat("-switch");
+            help.AppendLineFormat("-rollback");
+            help.AppendLineFormat("-ips|ignorePatterns=PartOfProjectNameToIgnore1,AnotherPart,...");
+            help.AppendLineFormat("-noWayBack\tThe switch operation is not going to support the rollback operation.  There is no way back :)");
             _userInteraction.DisplayMessage(help.ToString());
         }
     }

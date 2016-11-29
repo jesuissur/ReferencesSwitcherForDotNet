@@ -1,13 +1,18 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReferencesSwitcherForDotNet.Library", "ReferencesSwitcherForDotNet.Library\ReferencesSwitcherForDotNet.Library.csproj", "{03A4F6BE-5EE3-4412-BAEF-309C04A72C12}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReferencesSwitcherForDotNet.Tests", "ReferencesSwitcherForDotNet.Tests\ReferencesSwitcherForDotNet.Tests.csproj", "{F203994F-3AA9-4CC9-9012-655B88CED1F9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReferencesSwitcherForDotNet.App.Console", "ReferencesSwitcherForDotNet.App.Console\ReferencesSwitcherForDotNet.App.Console.csproj", "{6E8173C7-C034-4936-97DE-5DB5D5E8ECAE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F897BE94-FACE-48E6-BF98-D7604986488D}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

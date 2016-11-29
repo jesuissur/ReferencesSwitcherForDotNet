@@ -8,6 +8,7 @@ namespace ReferencesSwitcherForDotNet.App.Console
         private static void DisplayHelp(Arguments arguments)
         {
             arguments.DisplayHelp();
+            System.Console.WriteLine("Press ENTER to stop");
             System.Console.ReadLine();
             Environment.Exit(-1);
         }
