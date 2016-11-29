@@ -129,7 +129,7 @@ namespace ReferencesSwitcherForDotNet.Library.Internal
 
         private bool UserWantsToOverrideReadonlyFiles(List<ProjectInSolution> solutionProjects)
         {
-            if (AtLeastOneProjectIsReadOnly(solutionProjects))
+            if (_config.ShouldAskForReadonlyOverwrite && AtLeastOneProjectIsReadOnly(solutionProjects))
                 if (!_userInteraction.AskQuestion("At least one project file is read only.  Do you accept to remove the readonly attribute on those files?"))
                 {
                     _userInteraction.DisplayMessage("The operation has stopped. Remove the readonly attribute before trying again.");

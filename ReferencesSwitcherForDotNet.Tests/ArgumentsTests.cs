@@ -23,6 +23,7 @@ namespace ReferencesSwitcherForDotNet.Tests
             _userInteraction.Received().DisplayMessage(Arg.Is<string>(x => x.Contains("-s[olutions]")));
             _userInteraction.Received().DisplayMessage(Arg.Is<string>(x => x.Contains("ignorePatterns")));
             _userInteraction.Received().DisplayMessage(Arg.Is<string>(x => x.Contains("-noWayBack")));
+            _userInteraction.Received().DisplayMessage(Arg.Is<string>(x => x.Contains("-acceptReadonlyOverwrite")));
         }
 
         [Test]
@@ -51,6 +52,18 @@ namespace ReferencesSwitcherForDotNet.Tests
             new Arguments(_userInteraction, new[] {"-noWayBack"}, config);
 
             config.ShouldLeaveNoWayBack.Should().BeTrue();
+        }
+
+        [Test]
+        public void WithAcceptReadonlyOverwrite_Should_SetShouldAskForReadonlyOverwrite()
+        {
+            var config = new Configuration();
+
+            config.ShouldAskForReadonlyOverwrite.Should().BeTrue();
+
+            new Arguments(_userInteraction, new[] { "-acceptReadonlyOverwrite" }, config);
+
+            config.ShouldAskForReadonlyOverwrite.Should().BeFalse();
         }
 
         [Test]

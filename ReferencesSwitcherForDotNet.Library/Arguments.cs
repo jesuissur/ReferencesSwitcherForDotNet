@@ -18,6 +18,7 @@ namespace ReferencesSwitcherForDotNet.Library
                                        .AddArgument("switch").WithAction(x => ShouldSwitch = true)
                                        .AddArgument("rollback").WithAction(x => ShouldRollback = true)
                                        .AddArgument("noWayBack").WithAction(x => config.ShouldLeaveNoWayBack = true)
+                                       .AddArgument("acceptReadonlyOverwrite").WithAction(x => config.ShouldAskForReadonlyOverwrite = false)
                                        .Process();
         }
 
@@ -42,6 +43,7 @@ namespace ReferencesSwitcherForDotNet.Library
             help.AppendLineFormat("-rollback");
             help.AppendLineFormat("-ips|ignorePatterns=PartOfProjectNameToIgnore1,AnotherPart,...");
             help.AppendLineFormat("-noWayBack\tThe switch operation is not going to support the rollback operation.  There is no way back :)");
+            help.AppendLineFormat("-acceptReadonlyOverwrite\t Readonly Project files will be overriden without asking");
             _userInteraction.DisplayMessage(help.ToString());
         }
     }

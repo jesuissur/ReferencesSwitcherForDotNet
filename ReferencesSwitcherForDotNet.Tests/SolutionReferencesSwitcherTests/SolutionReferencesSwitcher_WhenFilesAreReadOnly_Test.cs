@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using FluentAssertions;
 using Microsoft.Build.Evaluation;
 using NSubstitute;
@@ -98,6 +97,25 @@ namespace ReferencesSwitcherForDotNet.Tests.SolutionReferencesSwitcherTests
 
                 subject.Switch(unitOfWork.SolutionFileFullPath);
 
+                unitOfWork.Project2IsReadOnly().Should().BeFalse();
+                VerifySwitchHasBeenDone(unitOfWork);
+            }
+        }
+
+        [Test]
+        public void Switch_Should_DoSwitchWithoutAsking_When_AutoAcceptOptionIsSet()
+        {
+            using (var unitOfWork = new UnitOfWork())
+            {
+                var userInteraction = Substitute.For<IUserInteraction>();
+                var subject = new SolutionReferencesSwitcher(userInteraction, unitOfWork.Configuration);
+
+                unitOfWork.Configuration.ShouldAskForReadonlyOverwrite = false;
+                unitOfWork.SetProject2AsReadOnly();
+
+                subject.Switch(unitOfWork.SolutionFileFullPath);
+
+                userInteraction.DidNotReceive().AskQuestion(Arg.Is<string>(x => x.ContainsAll("read", "only")));
                 unitOfWork.Project2IsReadOnly().Should().BeFalse();
                 VerifySwitchHasBeenDone(unitOfWork);
             }

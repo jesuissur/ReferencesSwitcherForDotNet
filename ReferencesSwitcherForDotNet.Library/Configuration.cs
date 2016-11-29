@@ -8,6 +8,7 @@ namespace ReferencesSwitcherForDotNet.Library
     {
         public string DatabaseFileName { get; set; } = Path.GetTempPath().PathCombine("ReferencesSwitcherForDotNet.txt");
         public List<string> ProjectNameIgnorePatterns { get; } = new List<string>();
+        public bool ShouldAskForReadonlyOverwrite { get; set; } = true;
         public bool ShouldLeaveNoWayBack { get; set; } = false;
 
         public bool ProjectNameShouldNotBeIgnored(string projectName)
