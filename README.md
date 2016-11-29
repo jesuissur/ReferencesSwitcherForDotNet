@@ -9,8 +9,8 @@ You got a .Net solution where projects are referencing each other with "assembly
 1. Execute the ReferencesSwitcherForDotNet.App.Console.exe to see each available parameters
 
 ### Requirements
-* .NET Framework 4.6.1
-* MS Build v14
+* [.NET Framework 4.6.1](https://www.microsoft.com/net/download/framework)
+* [MS Build v14](https://www.microsoft.com/en-ca/download/details.aspx?id=48159)
 
 ## Examples
 
