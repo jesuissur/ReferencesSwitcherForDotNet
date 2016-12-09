@@ -53,7 +53,7 @@ namespace ReferencesSwitcherForDotNet.Library.Internal
 
         private IEnumerable<ProjectInSolution> GetExistingProjects(SolutionFile solution)
         {
-            foreach (var solutionProject in solution.ProjectsInOrder)
+            foreach (var solutionProject in solution.ProjectsInOrder.Where(x=>_config.ProjectNameShouldNotBeSkipped(x.ProjectName)))
                 if (File.Exists(solutionProject.AbsolutePath))
                     yield return solutionProject;
         }
@@ -70,7 +70,7 @@ namespace ReferencesSwitcherForDotNet.Library.Internal
         private IEnumerable<ProjectItem> GetReferences(Project project)
         {
             return project.Items.Where(x => (x.ItemType == "Reference") &&
-                                            _config.ProjectNameShouldNotBeIgnored(x.GetEvaluatedIncludeForProjectShortName())).ToList();
+                                            _config.ReferenceNameShouldNotBeIgnored(x.GetEvaluatedIncludeForProjectShortName())).ToList();
         }
 
         private string GetRelativePathForProjectReference(ProjectInSolution solutionProject, ProjectInSolution matchedSolutionProject)

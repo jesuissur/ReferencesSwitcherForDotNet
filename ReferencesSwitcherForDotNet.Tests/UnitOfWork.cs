@@ -62,6 +62,11 @@ namespace ReferencesSwitcherForDotNet.Tests
             return GetProject("Project3");
         }
 
+        public Project GetSkippedProject()
+        {
+            return _projects.LoadProject(GetProjectPath("SkippedProject", ""));
+        }
+
         public string GetXmlForProject3()
         {
             var project = GetProject3();

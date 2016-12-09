@@ -41,7 +41,17 @@ namespace ReferencesSwitcherForDotNet.Tests
 
             new Arguments(_userInteraction, new[] {"-ignorePatterns=Part1,Part2"}, config);
 
-            config.ProjectNameIgnorePatterns.Should().Contain(new[] {"Part1", "Part2"});
+            config.ReferenceIgnorePatterns.Should().Contain(new[] {"Part1", "Part2"});
+        }
+
+        [Test]
+        public void WithSkip_Should_AddThoseProjectPatternsToConfiguration()
+        {
+            var config = new Configuration();
+
+            new Arguments(_userInteraction, new[] {"-skip=ProjectNamePart1,ProjectNamePart2"}, config);
+
+            config.ProjectSkipPatterns.Should().Contain(new[] { "ProjectNamePart1", "ProjectNamePart2" });
         }
 
         [Test]

@@ -14,7 +14,8 @@ namespace ReferencesSwitcherForDotNet.Library
             new ArgumentProcessor(args).UsingParameterSeparator('=')
                                        .AddArgument("help", "?").WithAction(x => DisplayHelp())
                                        .AddArgument("s", "solutions").WithAction(x => SolutionsFullPath.AddRange(x.Split(",")))
-                                       .AddArgument("ips", "ignorePatterns").WithAction(x => config.ProjectNameIgnorePatterns.AddRange(x.Split(",")))
+                                       .AddArgument("ips", "ignorePatterns").WithAction(x => config.ReferenceIgnorePatterns.AddRange(x.Split(",")))
+                                       .AddArgument("skip").WithAction(x => config.ProjectSkipPatterns.AddRange(x.Split(",")))
                                        .AddArgument("switch").WithAction(x => ShouldSwitch = true)
                                        .AddArgument("rollback").WithAction(x => ShouldRollback = true)
                                        .AddArgument("noWayBack").WithAction(x => config.ShouldLeaveNoWayBack = true)
@@ -41,7 +42,7 @@ namespace ReferencesSwitcherForDotNet.Library
             help.AppendLineFormat(@"-s[olutions]=""C:\FullPath\To\Solution.sln[,C:\FullPath\To\AnotherSolution.sln,...]""");
             help.AppendLineFormat("-switch");
             help.AppendLineFormat("-rollback");
-            help.AppendLineFormat("-ips|ignorePatterns=PartOfProjectNameToIgnore1,AnotherPart,...");
+            help.AppendLineFormat("-ips|ignorePatterns=PartOfProjectNameToIgnore1,AnotherPart,...\t Do not switch references whose name match one of the patterns");
             help.AppendLineFormat("-noWayBack\tThe switch operation is not going to support the rollback operation.  There is no way back :)");
             help.AppendLineFormat("-acceptReadonlyOverwrite\t Readonly Project files will be overriden without asking");
             _userInteraction.DisplayMessage(help.ToString());

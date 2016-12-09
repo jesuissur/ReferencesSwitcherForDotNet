@@ -168,13 +168,29 @@ namespace ReferencesSwitcherForDotNet.Tests.SolutionReferencesSwitcherTests
         }
 
         [Test]
+        public void Switch_Should_IgnoreSkipProjects()
+        {
+            using (var unitOfWork = new UnitOfWork())
+            {
+                var subject = new SolutionReferencesSwitcher(unitOfWork.Configuration);
+
+                unitOfWork.Configuration.ProjectSkipPatterns.Add("skipPedProJ");
+
+                subject.Switch(unitOfWork.SolutionFileFullPath);
+
+                var skippedProject = unitOfWork.GetSkippedProject();
+                skippedProject.GetReference("Project1").Should().NotBeNull("This project has not been switched");
+            }
+        }
+
+        [Test]
         public void Switch_Should_IgnoreReference_When_ProjectIgnorePatternsAreSet()
         {
             using (var unitOfWork = new UnitOfWork())
             {
                 var subject = new SolutionReferencesSwitcher(unitOfWork.Configuration);
 
-                unitOfWork.Configuration.ProjectNameIgnorePatterns.Add("ject1");
+                unitOfWork.Configuration.ReferenceIgnorePatterns.Add("ject1");
 
                 subject.Switch(unitOfWork.SolutionFileFullPath);
 
