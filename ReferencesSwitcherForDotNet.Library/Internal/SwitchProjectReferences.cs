@@ -82,6 +82,7 @@ namespace ReferencesSwitcherForDotNet.Library.Internal
 
         private void HideReference(ref Project project, ProjectItem referenceItem)
         {
+            project.Save();  // To load the Xml from the saved project file
             var xml = project.Xml.RawXml;
             var hideProjectReferenceRegex = new Regex(@"(?<content><Reference Include=""{0}"".*?</Reference>)".FormatWith(referenceItem.EvaluatedInclude),
                                                       RegexOptions.IgnoreCase | RegexOptions.Singleline);
@@ -104,11 +105,11 @@ namespace ReferencesSwitcherForDotNet.Library.Internal
         {
             EnsureProjectIsNotReadOnly(project);
             AddProjectReference(matchedSolutionProject, solutionProject, project);
-            project.Save();
             if (_config.ShouldLeaveNoWayBack)
                 project.RemoveItem(referenceItem);
             else
                 HideReference(ref project, referenceItem);
+            project.Save();
         }
 
         private bool UserGiveHisApprobation(List<ProjectInSolution> solutionProjects)

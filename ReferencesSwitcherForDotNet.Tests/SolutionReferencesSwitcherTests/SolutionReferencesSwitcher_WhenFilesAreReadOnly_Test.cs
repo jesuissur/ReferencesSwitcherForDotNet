@@ -124,7 +124,7 @@ namespace ReferencesSwitcherForDotNet.Tests.SolutionReferencesSwitcherTests
         private static void VerifySwitchHasBeenDone(UnitOfWork unitOfWork)
         {
             var project2 = unitOfWork.GetProject2();
-            var reference = project2.GetReference("Project1");
+            var reference = project2.GetFileReference("Project1");
             reference.Should().BeNull();
         }
 

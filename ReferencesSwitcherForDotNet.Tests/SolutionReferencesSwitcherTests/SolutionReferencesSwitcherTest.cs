@@ -58,8 +58,8 @@ namespace ReferencesSwitcherForDotNet.Tests.SolutionReferencesSwitcherTests
                 var projectWithMultipleProjectsToSwitch = unitOfWork.GetProject3();
                 projectWithMultipleProjectsToSwitch.GetProjectReference("Project1").Should().BeNull();
                 projectWithMultipleProjectsToSwitch.GetProjectReference("Project2").Should().BeNull();
-                projectWithMultipleProjectsToSwitch.GetReference("Project1").Should().NotBeNull();
-                projectWithMultipleProjectsToSwitch.GetReference("Project2").Should().NotBeNull();
+                projectWithMultipleProjectsToSwitch.GetFileReference("Project1").Should().NotBeNull();
+                projectWithMultipleProjectsToSwitch.GetFileReference("Project2").Should().NotBeNull();
             }
         }
 
@@ -75,7 +75,7 @@ namespace ReferencesSwitcherForDotNet.Tests.SolutionReferencesSwitcherTests
                 subject.Rollback(unitOfWork.SolutionFileFullPath);
 
                 var project2 = unitOfWork.GetProject2();
-                project2.GetReference("Project4").Should().NotBeNull();
+                project2.GetFileReference("Project4").Should().NotBeNull();
                 project2.GetProjectReference("Project9").Should().NotBeNull();
             }
         }
@@ -91,7 +91,7 @@ namespace ReferencesSwitcherForDotNet.Tests.SolutionReferencesSwitcherTests
                 subject.Rollback(unitOfWork.SolutionFileFullPath);
 
                 var project2 = unitOfWork.GetProject2();
-                var reference = project2.GetReference("Project1");
+                var reference = project2.GetFileReference("Project1");
                 var projectReference = project2.GetProjectReference("Project1");
                 reference.Should().NotBeNull();
                 projectReference.Should().BeNull();
@@ -133,6 +133,27 @@ namespace ReferencesSwitcherForDotNet.Tests.SolutionReferencesSwitcherTests
         }
 
         [Test]
+        public void Switch_Should_RemoveFileReferences_When_NoWayBackIsAsked()
+        {
+            using (var unitOfWork = new UnitOfWork())
+            {
+                var userInteraction = Substitute.For<IUserInteraction>();
+                var subject = new SolutionReferencesSwitcher(userInteraction, unitOfWork.Configuration);
+
+                unitOfWork.Configuration.ShouldLeaveNoWayBack = true;
+                userInteraction.AskQuestion(Arg.Any<string>()).Returns(true);
+
+                subject.Switch(unitOfWork.SolutionFileFullPath);
+
+                var project = unitOfWork.GetProject3();
+                project.GetProjectReference("Project1").Should().NotBeNull();
+                project.GetProjectReference("Project2").Should().NotBeNull();
+                project.GetFileReference("Project1").Should().BeNull();
+                project.GetFileReference("Project2").Should().BeNull();
+            }
+        }
+
+        [Test]
         public void Switch_Should_DoNothing_When_NoWayBackIsAskedButRefused()
         {
             using (var unitOfWork = new UnitOfWork())
@@ -162,8 +183,8 @@ namespace ReferencesSwitcherForDotNet.Tests.SolutionReferencesSwitcherTests
                 var projectWithMultipleProjectsToSwitch = unitOfWork.GetProject3();
                 projectWithMultipleProjectsToSwitch.GetProjectReference("Project1").Should().NotBeNull();
                 projectWithMultipleProjectsToSwitch.GetProjectReference("Project2").Should().NotBeNull();
-                projectWithMultipleProjectsToSwitch.GetReference("Project1").Should().BeNull();
-                projectWithMultipleProjectsToSwitch.GetReference("Project2").Should().BeNull();
+                projectWithMultipleProjectsToSwitch.GetFileReference("Project1").Should().BeNull();
+                projectWithMultipleProjectsToSwitch.GetFileReference("Project2").Should().BeNull();
             }
         }
 
@@ -179,7 +200,7 @@ namespace ReferencesSwitcherForDotNet.Tests.SolutionReferencesSwitcherTests
                 subject.Switch(unitOfWork.SolutionFileFullPath);
 
                 var skippedProject = unitOfWork.GetSkippedProject();
-                skippedProject.GetReference("Project1").Should().NotBeNull("This project has not been switched");
+                skippedProject.GetFileReference("Project1").Should().NotBeNull("This project has not been switched");
             }
         }
 
@@ -195,8 +216,8 @@ namespace ReferencesSwitcherForDotNet.Tests.SolutionReferencesSwitcherTests
                 subject.Switch(unitOfWork.SolutionFileFullPath);
 
                 var project2 = unitOfWork.GetProject3();
-                project2.GetReference("Project1").Should().NotBeNull("because the project1 should have been ignored");
-                project2.GetReference("Project2").Should().BeNull("because the project2 should NOT have been ignored");
+                project2.GetFileReference("Project1").Should().NotBeNull("because the project1 should have been ignored");
+                project2.GetFileReference("Project2").Should().BeNull("because the project2 should NOT have been ignored");
             }
         }
 
@@ -210,7 +231,7 @@ namespace ReferencesSwitcherForDotNet.Tests.SolutionReferencesSwitcherTests
                 subject.Switch(unitOfWork.SolutionFileFullPath);
 
                 var project2 = unitOfWork.GetProject2();
-                var reference = project2.GetReference("Project1");
+                var reference = project2.GetFileReference("Project1");
                 reference.Should().BeNull();
             }
         }
@@ -225,7 +246,7 @@ namespace ReferencesSwitcherForDotNet.Tests.SolutionReferencesSwitcherTests
         private static void VerifySwitchHasNotBeenDone(UnitOfWork unitOfWork)
         {
             var project2 = unitOfWork.GetProject2();
-            var reference = project2.GetReference("Project1");
+            var reference = project2.GetFileReference("Project1");
             reference.Should().NotBeNull();
         }
     }
