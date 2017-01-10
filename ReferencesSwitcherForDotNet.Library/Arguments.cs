@@ -43,6 +43,7 @@ namespace ReferencesSwitcherForDotNet.Library
             help.AppendLineFormat("-switch");
             help.AppendLineFormat("-rollback");
             help.AppendLineFormat("-ips|ignorePatterns=PartOfProjectNameToIgnore1,AnotherPart,...\t Do not switch references whose name match one of the patterns");
+            help.AppendLineFormat("-skip=PartOfProjectNameToIgnore1,AnotherPart,...\t  Completely ignore projects whose name match one of the patterns");
             help.AppendLineFormat("-noWayBack\tThe switch operation is not going to support the rollback operation.  There is no way back :)");
             help.AppendLineFormat("-acceptReadonlyOverwrite\t Readonly Project files will be overriden without asking");
             _userInteraction.DisplayMessage(help.ToString());

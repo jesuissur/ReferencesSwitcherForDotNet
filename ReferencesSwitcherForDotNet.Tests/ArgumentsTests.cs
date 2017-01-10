@@ -24,6 +24,7 @@ namespace ReferencesSwitcherForDotNet.Tests
             _userInteraction.Received().DisplayMessage(Arg.Is<string>(x => x.Contains("ignorePatterns")));
             _userInteraction.Received().DisplayMessage(Arg.Is<string>(x => x.Contains("-noWayBack")));
             _userInteraction.Received().DisplayMessage(Arg.Is<string>(x => x.Contains("-acceptReadonlyOverwrite")));
+            _userInteraction.Received().DisplayMessage(Arg.Is<string>(x => x.Contains("-skip")));
         }
 
         [Test]
