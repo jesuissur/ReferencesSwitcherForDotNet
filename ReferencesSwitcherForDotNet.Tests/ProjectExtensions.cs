@@ -8,8 +8,8 @@ namespace ReferencesSwitcherForDotNet.Tests
     {
         public static ProjectItem GetProjectReference(this Project project, string projectName)
         {
-            return project.Items.FirstOrDefault(x => (x.ItemType == "ProjectReference") &&
-                                                     (x.GetEvaluatedIncludeForProjectShortName() == string.Format(@"..\{0}\{0}.csproj", projectName)));
+            return project.Items.FirstOrDefault(x => x.ItemType == "ProjectReference" &&
+                                                     x.DirectMetadata.Any(m=> m.Name == "Name" && m.EvaluatedValue == projectName));
         }
 
         public static ProjectItem GetFileReference(this Project project, string projectName)

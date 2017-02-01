@@ -236,6 +236,21 @@ namespace ReferencesSwitcherForDotNet.Tests.SolutionReferencesSwitcherTests
             }
         }
 
+        [Test]
+        public void SwitchMissingProjectReferences_Should_RemoveProjectReference_When_ProjectDoesNotExistsInSolution()
+        {
+            using (var unitOfWork = new UnitOfWork())
+            {
+                var subject = new SolutionReferencesSwitcher(unitOfWork.Configuration);
+
+                subject.SwitchMissingProjectReferences(unitOfWork.SolutionFileFullPath);
+
+                var projectWithMissingProjectRef = unitOfWork.GetProject3();
+                projectWithMissingProjectRef.GetProjectReference("MissingProject").Should().BeNull();
+                projectWithMissingProjectRef.GetFileReference("MissingProject").Should().NotBeNull();
+            }
+        }
+
         private static void VerifyRollbackHasNotBeenDone(UnitOfWork unitOfWork)
         {
             var project2 = unitOfWork.GetProject2();

@@ -58,8 +58,10 @@
     <Compile Include="Arguments.cs" />
     <Compile Include="Configuration.cs" />
     <Compile Include="ConsoleUserInteraction.cs" />
+    <Compile Include="Extensions\ProjectSolutionExtensions.cs" />
     <Compile Include="Internal\FileSystem.cs" />
     <Compile Include="Internal\Projects.cs" />
+    <Compile Include="Internal\QuestionAboutReadOnlyFiles.cs" />
     <Compile Include="Internal\Repository.cs" />
     <Compile Include="Internal\RollbackProjectReferences.cs" />
     <Compile Include="Internal\SwitchProjectReferences.cs" />
@@ -68,6 +70,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ProjectItemExtensions.cs" />
     <Compile Include="SolutionReferencesSwitcher.cs" />
+    <Compile Include="Internal\SwitchMissingProjectReferences.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

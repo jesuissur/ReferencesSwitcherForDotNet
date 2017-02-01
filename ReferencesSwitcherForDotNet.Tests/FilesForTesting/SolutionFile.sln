@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Project1", "Project1\Projec
 EndProject
 Project("{3250E333-8FDC-42A3-9474-1A3956D46DD9}") = "Project3", "Project3\Project3.csproj", "{C3399BDA-7ED5-4CB6-9B44-E835854D3333}"
 EndProject
+Project("{3250E333-8FDC-42A3-9474-1A3956D46DD9}") = "AnotherProject", "AnotherProject.csproj", "{C7599BDA-7ED5-4CB6-9B44-E835854D3332}"
+EndProject
 Project("{3250E333-8FDC-42A3-9474-1A3956D46DD9}") = "SkippedProject", "SkippedProject.csproj", "{C4599BDA-7ED5-4CB6-9B44-E835854D3333}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{C6A39A77-AEF6-421D-8198-E15821B80F9D}"

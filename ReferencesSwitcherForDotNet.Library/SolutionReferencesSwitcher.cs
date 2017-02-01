@@ -31,5 +31,10 @@ namespace ReferencesSwitcherForDotNet.Library
         {
             new SwitchProjectReferences(_userInteraction, _config).Switch(solutionFullPath);
         }
+
+        public void SwitchMissingProjectReferences(string solutionFullPath)
+        {
+            new SwitchMissingProjectReferences(_userInteraction, _config).Switch(solutionFullPath);
+        }
     }
 }

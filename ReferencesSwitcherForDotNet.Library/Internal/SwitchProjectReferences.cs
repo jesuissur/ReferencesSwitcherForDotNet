@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Microsoft.Build.Construction;
 using Microsoft.Build.Evaluation;
+using ReferencesSwitcherForDotNet.Library.Extensions;
 
 namespace ReferencesSwitcherForDotNet.Library.Internal
 {
@@ -27,7 +28,7 @@ namespace ReferencesSwitcherForDotNet.Library.Internal
             using (_projects = new Projects())
             {
                 var solution = SolutionFile.Parse(solutionFullPath);
-                var solutionProjects = GetExistingProjects(solution).ToList();
+                var solutionProjects = solution.GetExistingProjects(_config).ToList();
                 if (UserGiveHisApprobation(solutionProjects))
                     solutionProjects.ForEach(x => SwitchReferencesForProjectReferences(x, solution));
             }
@@ -40,22 +41,10 @@ namespace ReferencesSwitcherForDotNet.Library.Internal
             project.AddItem("ProjectReference", relativePath, metadata);
         }
 
-        private bool AtLeastOneProjectIsReadOnly(List<ProjectInSolution> solutionProjects)
-        {
-            return solutionProjects.Any(x => FileSystem.IsReadOnly(x.AbsolutePath));
-        }
-
         private void EnsureProjectIsNotReadOnly(Project project)
         {
             if (FileSystem.SetFileAsWritable(project.FullPath))
                 _repository.RememberReadonlyStatusForProject(project);
-        }
-
-        private IEnumerable<ProjectInSolution> GetExistingProjects(SolutionFile solution)
-        {
-            foreach (var solutionProject in solution.ProjectsInOrder.Where(x=>_config.ProjectNameShouldNotBeSkipped(x.ProjectName)))
-                if (File.Exists(solutionProject.AbsolutePath))
-                    yield return solutionProject;
         }
 
         private List<KeyValuePair<string, string>> GetMetadataForProjectReference(ProjectInSolution matchedSolutionProject)
@@ -130,13 +119,8 @@ namespace ReferencesSwitcherForDotNet.Library.Internal
 
         private bool UserWantsToOverrideReadonlyFiles(List<ProjectInSolution> solutionProjects)
         {
-            if (_config.ShouldAskForReadonlyOverwrite && AtLeastOneProjectIsReadOnly(solutionProjects))
-                if (!_userInteraction.AskQuestion("At least one project file is read only.  Do you accept to remove the readonly attribute on those files?"))
-                {
-                    _userInteraction.DisplayMessage("The operation has stopped. Remove the readonly attribute before trying again.");
-                    return false;
-                }
-            return true;
+            var wantsToOverrideQuestion = new QuestionAboutReadOnlyFiles(_userInteraction, _config, solutionProjects);
+            return wantsToOverrideQuestion.GetAnswer();
         }
     }
 }

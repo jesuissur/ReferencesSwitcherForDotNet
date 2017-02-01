@@ -49,5 +49,11 @@
       <HintPath>..\Project4\bin\Debug\Project4.dll</HintPath>
     </Reference>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Project5\MissingProject.csproj">
+      <Project>{03678911-1d4f-4fe1-ab70-8443651c7fc0}</Project>
+      <Name>MissingProject</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
