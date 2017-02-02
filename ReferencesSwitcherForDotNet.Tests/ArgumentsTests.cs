@@ -25,6 +25,7 @@ namespace ReferencesSwitcherForDotNet.Tests
             _userInteraction.Received().DisplayMessage(Arg.Is<string>(x => x.Contains("-noWayBack")));
             _userInteraction.Received().DisplayMessage(Arg.Is<string>(x => x.Contains("-acceptReadonlyOverwrite")));
             _userInteraction.Received().DisplayMessage(Arg.Is<string>(x => x.Contains("-skip")));
+            _userInteraction.Received().DisplayMessage(Arg.Is<string>(x => x.Contains("-switchMissingProjRef")));
         }
 
         [Test]
@@ -33,6 +34,29 @@ namespace ReferencesSwitcherForDotNet.Tests
             new Arguments(_userInteraction, new[] {"-help"}, new Configuration());
 
             _userInteraction.Received().DisplayMessage(Arg.Any<string>());
+        }
+
+        [Test]
+        public void AreMissing_Should_BeFalse_When_SwitchOrRollbackIsSetAlongSolutionFile()
+        {
+            var args = new Arguments(_userInteraction, new[] {"-s=x.sln", "-switch"}, new Configuration());
+            args.AreMissing.Should().BeFalse();
+
+            args = new Arguments(_userInteraction, new[] {"-s=x.sln", "-rollback"}, new Configuration());
+            args.AreMissing.Should().BeFalse();
+
+            args = new Arguments(_userInteraction, new[] {"-s=x.sln", "-switchMissingProjRef" }, new Configuration());
+            args.AreMissing.Should().BeFalse();
+        }
+
+        [Test]
+        public void AreMissing_Should_BeTrue_When_MissingSolutionFileOrSwitchRollback()
+        {
+            var args = new Arguments(_userInteraction, new[] {"-rollback", "-switch", "-switchMissingProjRef" }, new Configuration());
+            args.AreMissing.Should().BeTrue();
+
+            args = new Arguments(_userInteraction, new[] { "-s=x.sln" }, new Configuration());
+            args.AreMissing.Should().BeTrue();
         }
 
         [Test]
@@ -83,6 +107,14 @@ namespace ReferencesSwitcherForDotNet.Tests
             var subject = new Arguments(_userInteraction, new[] {"-rollback"}, new Configuration());
 
             subject.ShouldRollback.Should().BeTrue();
+        }
+
+        [Test]
+        public void WithSwitchMissingProjRefFlag_Should_SetSwitchMissingProjectReferences()
+        {
+            var subject = new Arguments(_userInteraction, new[] { "-switchMissingProjRef" }, new Configuration());
+
+            subject.ShouldSwitchMissingProjectReferences.Should().BeTrue();
         }
 
         [Test]

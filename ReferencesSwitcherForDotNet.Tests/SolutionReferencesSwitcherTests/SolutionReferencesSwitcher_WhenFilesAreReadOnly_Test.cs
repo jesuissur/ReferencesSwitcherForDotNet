@@ -18,7 +18,7 @@ namespace ReferencesSwitcherForDotNet.Tests.SolutionReferencesSwitcherTests
                 var userInteraction = Substitute.For<IUserInteraction>();
                 var subject = new SolutionReferencesSwitcher(userInteraction, unitOfWork.Configuration);
 
-                userInteraction.AskQuestion(Arg.Is<string>(x => x.ContainsAll("read", "only"))).Returns(true);
+                userInteraction.AskYesNoQuestion(Arg.Is<string>(x => x.ContainsAll("read", "only"))).Returns(true);
                 unitOfWork.SetProject2AsReadOnly();
 
                 subject.Switch(unitOfWork.SolutionFileFullPath);
@@ -37,7 +37,7 @@ namespace ReferencesSwitcherForDotNet.Tests.SolutionReferencesSwitcherTests
                 var userInteraction = Substitute.For<IUserInteraction>();
                 var subject = new SolutionReferencesSwitcher(userInteraction, unitOfWork.Configuration);
 
-                userInteraction.AskQuestion(Arg.Any<string>()).Returns(true);
+                userInteraction.AskYesNoQuestion(Arg.Any<string>()).Returns(true);
                 unitOfWork.SetProject2AsReadOnly();
 
                 subject.Switch(unitOfWork.SolutionFileFullPath);
@@ -55,7 +55,7 @@ namespace ReferencesSwitcherForDotNet.Tests.SolutionReferencesSwitcherTests
                 var userInteraction = Substitute.For<IUserInteraction>();
                 var subject = new SolutionReferencesSwitcher(userInteraction, unitOfWork.Configuration);
 
-                userInteraction.AskQuestion(Arg.Any<string>()).Returns(true);
+                userInteraction.AskYesNoQuestion(Arg.Any<string>()).Returns(true);
                 unitOfWork.SetProject2AsReadOnly();
                 unitOfWork.SetProject3AsReadOnly();
 
@@ -75,7 +75,7 @@ namespace ReferencesSwitcherForDotNet.Tests.SolutionReferencesSwitcherTests
                 var userInteraction = Substitute.For<IUserInteraction>();
                 var subject = new SolutionReferencesSwitcher(userInteraction, unitOfWork.Configuration);
 
-                userInteraction.AskQuestion(Arg.Is<string>(x => x.ContainsAll("read", "only"))).Returns(false);
+                userInteraction.AskYesNoQuestion(Arg.Is<string>(x => x.ContainsAll("read", "only"))).Returns(false);
                 unitOfWork.SetProject2AsReadOnly();
 
                 subject.Switch(unitOfWork.SolutionFileFullPath);
@@ -92,7 +92,7 @@ namespace ReferencesSwitcherForDotNet.Tests.SolutionReferencesSwitcherTests
                 var userInteraction = Substitute.For<IUserInteraction>();
                 var subject = new SolutionReferencesSwitcher(userInteraction, unitOfWork.Configuration);
 
-                userInteraction.AskQuestion(Arg.Is<string>(x => x.ContainsAll("read", "only"))).Returns(true);
+                userInteraction.AskYesNoQuestion(Arg.Is<string>(x => x.ContainsAll("read", "only"))).Returns(true);
                 unitOfWork.SetProject2AsReadOnly();
 
                 subject.Switch(unitOfWork.SolutionFileFullPath);
@@ -115,7 +115,7 @@ namespace ReferencesSwitcherForDotNet.Tests.SolutionReferencesSwitcherTests
 
                 subject.Switch(unitOfWork.SolutionFileFullPath);
 
-                userInteraction.DidNotReceive().AskQuestion(Arg.Is<string>(x => x.ContainsAll("read", "only")));
+                userInteraction.DidNotReceive().AskYesNoQuestion(Arg.Is<string>(x => x.ContainsAll("read", "only")));
                 unitOfWork.Project2IsReadOnly().Should().BeFalse();
                 VerifySwitchHasBeenDone(unitOfWork);
             }

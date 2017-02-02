@@ -37,7 +37,7 @@ namespace ReferencesSwitcherForDotNet.Library.Internal
         private void AddProjectReference(ProjectInSolution matchedSolutionProject, ProjectInSolution solutionProject, Project project)
         {
             var metadata = GetMetadataForProjectReference(matchedSolutionProject);
-            var relativePath = GetRelativePathForProjectReference(solutionProject, matchedSolutionProject);
+            var relativePath = RelativePath.For(solutionProject.AbsolutePath, matchedSolutionProject.AbsolutePath);
             project.AddItem("ProjectReference", relativePath, metadata);
         }
 
@@ -60,13 +60,6 @@ namespace ReferencesSwitcherForDotNet.Library.Internal
         {
             return project.Items.Where(x => (x.ItemType == "Reference") &&
                                             _config.ReferenceNameShouldNotBeIgnored(x.GetEvaluatedIncludeForProjectShortName())).ToList();
-        }
-
-        private string GetRelativePathForProjectReference(ProjectInSolution solutionProject, ProjectInSolution matchedSolutionProject)
-        {
-            var uri = new Uri(solutionProject.AbsolutePath);
-            var uriRelativePath = uri.MakeRelativeUri(new Uri(matchedSolutionProject.AbsolutePath));
-            return uriRelativePath.ToString().Replace("/", Path.DirectorySeparatorChar.ToString());
         }
 
         private void HideReference(ref Project project, ProjectItem referenceItem)
@@ -109,7 +102,7 @@ namespace ReferencesSwitcherForDotNet.Library.Internal
         private bool UserWantsToBurnBridges()
         {
             if (_config.ShouldLeaveNoWayBack)
-                if (!_userInteraction.AskQuestion("Are you sure you want to remove the possibility to rollback your changes?"))
+                if (!_userInteraction.AskYesNoQuestion("Are you sure you want to remove the possibility to rollback your changes?"))
                 {
                     _userInteraction.DisplayMessage("The operation has stopped because you want to be able to rollback your changes. Try again with the right configuration.");
                     return false;

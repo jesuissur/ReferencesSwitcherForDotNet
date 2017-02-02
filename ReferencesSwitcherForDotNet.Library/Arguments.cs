@@ -18,17 +18,16 @@ namespace ReferencesSwitcherForDotNet.Library
                                        .AddArgument("skip").WithAction(x => config.ProjectSkipPatterns.AddRange(x.Split(",")))
                                        .AddArgument("switch").WithAction(x => ShouldSwitch = true)
                                        .AddArgument("rollback").WithAction(x => ShouldRollback = true)
+                                       .AddArgument("switchMissingProjRef").WithAction(x => ShouldSwitchMissingProjectReferences = true)
                                        .AddArgument("noWayBack").WithAction(x => config.ShouldLeaveNoWayBack = true)
                                        .AddArgument("acceptReadonlyOverwrite").WithAction(x => config.ShouldAskForReadonlyOverwrite = false)
                                        .Process();
         }
 
-        public bool AreMissing => SolutionsFullPath.IsNullOrEmpty() || (!ShouldSwitch && !ShouldRollback);
-
+        public bool AreMissing => SolutionsFullPath.IsNullOrEmpty() || !ShouldSwitch && !ShouldRollback && !ShouldSwitchMissingProjectReferences;
         public bool ShouldRollback { get; set; }
-
         public bool ShouldSwitch { get; set; }
-
+        public bool ShouldSwitchMissingProjectReferences { get; set; }
         public List<string> SolutionsFullPath { get; } = new List<string>();
 
         public void DisplayHelp()
@@ -42,6 +41,7 @@ namespace ReferencesSwitcherForDotNet.Library
             help.AppendLineFormat(@"-s[olutions]=""C:\FullPath\To\Solution.sln[,C:\FullPath\To\AnotherSolution.sln,...]""");
             help.AppendLineFormat("-switch");
             help.AppendLineFormat("-rollback");
+            help.AppendLineFormat("-switchMissingProjRef\t Switch Project References to File References when a referenced project is not part of the solution");
             help.AppendLineFormat("-ips|ignorePatterns=PartOfProjectNameToIgnore1,AnotherPart,...\t Do not switch references whose name match one of the patterns");
             help.AppendLineFormat("-skip=PartOfProjectNameToIgnore1,AnotherPart,...\t  Completely ignore projects whose name match one of the patterns");
             help.AppendLineFormat("-noWayBack\tThe switch operation is not going to support the rollback operation.  There is no way back :)");

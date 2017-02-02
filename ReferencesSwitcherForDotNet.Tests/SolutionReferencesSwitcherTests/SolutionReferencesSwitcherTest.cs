@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.IO;
+using System.Linq;
 using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
@@ -35,7 +36,7 @@ namespace ReferencesSwitcherForDotNet.Tests.SolutionReferencesSwitcherTests
                 var subject = new SolutionReferencesSwitcher(userInteraction, unitOfWork.Configuration);
 
                 unitOfWork.Configuration.ShouldLeaveNoWayBack = true;
-                userInteraction.AskQuestion(Arg.Any<string>()).Returns(true);
+                userInteraction.AskYesNoQuestion(Arg.Any<string>()).Returns(true);
 
                 subject.Switch(unitOfWork.SolutionFileFullPath);
                 subject.Rollback(unitOfWork.SolutionFileFullPath);
@@ -128,28 +129,7 @@ namespace ReferencesSwitcherForDotNet.Tests.SolutionReferencesSwitcherTests
 
                 subject.Switch(unitOfWork.SolutionFileFullPath);
 
-                userInteraction.Received().AskQuestion(Arg.Is<string>(x => x.ContainsAll("rollback", "possib")));
-            }
-        }
-
-        [Test]
-        public void Switch_Should_RemoveFileReferences_When_NoWayBackIsAsked()
-        {
-            using (var unitOfWork = new UnitOfWork())
-            {
-                var userInteraction = Substitute.For<IUserInteraction>();
-                var subject = new SolutionReferencesSwitcher(userInteraction, unitOfWork.Configuration);
-
-                unitOfWork.Configuration.ShouldLeaveNoWayBack = true;
-                userInteraction.AskQuestion(Arg.Any<string>()).Returns(true);
-
-                subject.Switch(unitOfWork.SolutionFileFullPath);
-
-                var project = unitOfWork.GetProject3();
-                project.GetProjectReference("Project1").Should().NotBeNull();
-                project.GetProjectReference("Project2").Should().NotBeNull();
-                project.GetFileReference("Project1").Should().BeNull();
-                project.GetFileReference("Project2").Should().BeNull();
+                userInteraction.Received().AskYesNoQuestion(Arg.Is<string>(x => x.ContainsAll("rollback", "possib")));
             }
         }
 
@@ -162,7 +142,7 @@ namespace ReferencesSwitcherForDotNet.Tests.SolutionReferencesSwitcherTests
                 var subject = new SolutionReferencesSwitcher(userInteraction, unitOfWork.Configuration);
 
                 unitOfWork.Configuration.ShouldLeaveNoWayBack = true;
-                userInteraction.AskQuestion(Arg.Is<string>(x => x.ToLower().ContainsAll("rollback", "possib"))).Returns(false);
+                userInteraction.AskYesNoQuestion(Arg.Is<string>(x => x.ToLower().ContainsAll("rollback", "possib"))).Returns(false);
 
                 subject.Switch(unitOfWork.SolutionFileFullPath);
 
@@ -189,6 +169,23 @@ namespace ReferencesSwitcherForDotNet.Tests.SolutionReferencesSwitcherTests
         }
 
         [Test]
+        public void Switch_Should_IgnoreReference_When_ProjectIgnorePatternsAreSet()
+        {
+            using (var unitOfWork = new UnitOfWork())
+            {
+                var subject = new SolutionReferencesSwitcher(unitOfWork.Configuration);
+
+                unitOfWork.Configuration.ReferenceIgnorePatterns.Add("ject1");
+
+                subject.Switch(unitOfWork.SolutionFileFullPath);
+
+                var project2 = unitOfWork.GetProject3();
+                project2.GetFileReference("Project1").Should().NotBeNull("because the project1 should have been ignored");
+                project2.GetFileReference("Project2").Should().BeNull("because the project2 should NOT have been ignored");
+            }
+        }
+
+        [Test]
         public void Switch_Should_IgnoreSkipProjects()
         {
             using (var unitOfWork = new UnitOfWork())
@@ -205,19 +202,23 @@ namespace ReferencesSwitcherForDotNet.Tests.SolutionReferencesSwitcherTests
         }
 
         [Test]
-        public void Switch_Should_IgnoreReference_When_ProjectIgnorePatternsAreSet()
+        public void Switch_Should_RemoveFileReferences_When_NoWayBackIsAsked()
         {
             using (var unitOfWork = new UnitOfWork())
             {
-                var subject = new SolutionReferencesSwitcher(unitOfWork.Configuration);
+                var userInteraction = Substitute.For<IUserInteraction>();
+                var subject = new SolutionReferencesSwitcher(userInteraction, unitOfWork.Configuration);
 
-                unitOfWork.Configuration.ReferenceIgnorePatterns.Add("ject1");
+                unitOfWork.Configuration.ShouldLeaveNoWayBack = true;
+                userInteraction.AskYesNoQuestion(Arg.Any<string>()).Returns(true);
 
                 subject.Switch(unitOfWork.SolutionFileFullPath);
 
-                var project2 = unitOfWork.GetProject3();
-                project2.GetFileReference("Project1").Should().NotBeNull("because the project1 should have been ignored");
-                project2.GetFileReference("Project2").Should().BeNull("because the project2 should NOT have been ignored");
+                var project = unitOfWork.GetProject3();
+                project.GetProjectReference("Project1").Should().NotBeNull();
+                project.GetProjectReference("Project2").Should().NotBeNull();
+                project.GetFileReference("Project1").Should().BeNull();
+                project.GetFileReference("Project2").Should().BeNull();
             }
         }
 
@@ -237,6 +238,59 @@ namespace ReferencesSwitcherForDotNet.Tests.SolutionReferencesSwitcherTests
         }
 
         [Test]
+        public void SwitchMissingProjectReferences_Should_AskJustOnceForFileReferencesDirectory_When_NotSpecifiedInConfiguration()
+        {
+            using (var unitOfWork = new UnitOfWork())
+            {
+                var aPath = unitOfWork.Configuration.FileReferencesDefaultDirectory;
+                var userInteraction = Substitute.For<IUserInteraction>();
+                var subject = new SolutionReferencesSwitcher(userInteraction, unitOfWork.Configuration);
+
+                userInteraction.AskQuestion(Arg.Any<string>()).Returns(aPath);
+                unitOfWork.Configuration.FileReferencesDefaultDirectory = "";
+
+                subject.SwitchMissingProjectReferences(unitOfWork.SolutionFileFullPath);
+
+                userInteraction.Received(1).AskQuestion(Arg.Is<string>(x => x.ContainsAll("directory", "reference")));
+            }
+        }
+
+        [Test]
+        public void SwitchMissingProjectReferences_Should_UseTheFileReferencesDirectoryAskedToTheUser_When_NotSpecifiedInConfiguration()
+        {
+            using (var unitOfWork = new UnitOfWork())
+            {
+                var aPath = unitOfWork.Configuration.FileReferencesDefaultDirectory;
+                var userInteraction = Substitute.For<IUserInteraction>();
+                var subject = new SolutionReferencesSwitcher(userInteraction, unitOfWork.Configuration);
+
+                userInteraction.AskQuestion(Arg.Any<string>()).Returns(aPath);
+                unitOfWork.Configuration.FileReferencesDefaultDirectory = "";
+
+                subject.SwitchMissingProjectReferences(unitOfWork.SolutionFileFullPath);
+
+                var projectWithMissingProjectRef = unitOfWork.GetProject3();
+                var fileReference = projectWithMissingProjectRef.GetFileReference("MissingProject");
+                fileReference.Should().NotBeNull();
+                fileReference.GetMetadataValue("HintPath").Should().ContainEquivalentOf(aPath);
+            }
+        }
+
+        [Test]
+        public void SwitchMissingProjectReferences_Should_NotRemoveProjectReference_When_ProjectExistsInSolution()
+        {
+            using (var unitOfWork = new UnitOfWork())
+            {
+                var subject = new SolutionReferencesSwitcher(unitOfWork.Configuration);
+
+                subject.SwitchMissingProjectReferences(unitOfWork.SolutionFileFullPath);
+
+                var projectWithMissingProjectRef = unitOfWork.GetProject3();
+                projectWithMissingProjectRef.GetProjectReference("AnotherProject").Should().NotBeNull();
+            }
+        }
+
+        [Test]
         public void SwitchMissingProjectReferences_Should_RemoveProjectReference_When_ProjectDoesNotExistsInSolution()
         {
             using (var unitOfWork = new UnitOfWork())
@@ -246,9 +300,37 @@ namespace ReferencesSwitcherForDotNet.Tests.SolutionReferencesSwitcherTests
                 subject.SwitchMissingProjectReferences(unitOfWork.SolutionFileFullPath);
 
                 var projectWithMissingProjectRef = unitOfWork.GetProject3();
-                projectWithMissingProjectRef.GetProjectReference("MissingProject").Should().BeNull();
                 projectWithMissingProjectRef.GetFileReference("MissingProject").Should().NotBeNull();
+                projectWithMissingProjectRef.GetProjectReference("MissingProject").Should().BeNull();
             }
+        }
+
+        [Test]
+        public void SwitchMissingProjectReferences_Should_UseFileReferencesDirectoryFromConfig_When_SwitchingToFileReference()
+        {
+            using (var unitOfWork = new UnitOfWork())
+            {
+                const int levelsAbove = 4;
+                var subject = new SolutionReferencesSwitcher(unitOfWork.Configuration);
+
+                unitOfWork.Configuration.FileReferencesDefaultDirectory = GetPathFewLevelsAboveProjectFile(levelsAbove, unitOfWork);
+
+                subject.SwitchMissingProjectReferences(unitOfWork.SolutionFileFullPath);
+
+                var projectWithMissingProjectRef = unitOfWork.GetProject3();
+                var fileReference = projectWithMissingProjectRef.GetFileReference("MissingProject");
+                fileReference.Should().NotBeNull();
+                var expectedRelativeFileRefPath = @"..\".Repeat(levelsAbove).ConcatWith("MissingProject.dll");
+                fileReference.GetMetadataValue("HintPath").Should().Be(expectedRelativeFileRefPath);
+            }
+        }
+
+        private static string GetPathFewLevelsAboveProjectFile(int levels, UnitOfWork unitOfWork)
+        {
+            var defaultDirJustAboveProjectFiles = unitOfWork.GetFullPathToProject3();
+            for (var i = 0; i <= levels; i++)
+                defaultDirJustAboveProjectFiles = Path.GetDirectoryName(defaultDirJustAboveProjectFiles);
+            return defaultDirJustAboveProjectFiles;
         }
 
         private static void VerifyRollbackHasNotBeenDone(UnitOfWork unitOfWork)

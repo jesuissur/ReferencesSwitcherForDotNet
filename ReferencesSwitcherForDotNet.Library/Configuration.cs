@@ -7,6 +7,7 @@ namespace ReferencesSwitcherForDotNet.Library
     public class Configuration
     {
         public string DatabaseFileName { get; set; } = Path.GetTempPath().PathCombine("ReferencesSwitcherForDotNet.txt");
+        public string FileReferencesDefaultDirectory { get; set; }
         public List<string> ProjectSkipPatterns { get; } = new List<string>();
         public List<string> ReferenceIgnorePatterns { get; } = new List<string>();
         public bool ShouldAskForReadonlyOverwrite { get; set; } = true;

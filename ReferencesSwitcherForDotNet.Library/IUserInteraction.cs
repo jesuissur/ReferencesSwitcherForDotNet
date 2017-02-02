@@ -2,7 +2,8 @@
 {
     public interface IUserInteraction
     {
-        bool AskQuestion(string question);
+        bool AskYesNoQuestion(string question);
         void DisplayMessage(string message);
+        string AskQuestion(string question);
     }
 }

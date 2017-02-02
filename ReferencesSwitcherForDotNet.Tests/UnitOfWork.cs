@@ -21,7 +21,11 @@ namespace ReferencesSwitcherForDotNet.Tests
             _path = CurrentDir.PathCombine(Guid.NewGuid().ToString());
             Directory.CreateDirectory(_path);
             FileSystem.CopyDirectory(CurrentDir.PathCombine(DirectoryWithFilesForTesting), _path);
-            Configuration = new Configuration {DatabaseFileName = _path.PathCombine("dbFileName.txt")};
+            Configuration = new Configuration
+                            {
+                                DatabaseFileName = _path.PathCombine("dbFileName.txt"),
+                                FileReferencesDefaultDirectory = @"Z:\SomeDirectoryFromAnotherDrive"
+                            };
         }
 
         public Configuration Configuration { get; }
@@ -45,6 +49,11 @@ namespace ReferencesSwitcherForDotNet.Tests
             }
             _projects.UnloadAllProjects();
             _projects.Dispose();
+        }
+
+        public string GetFullPathToProject3()
+        {
+            return GetProjectPath("Project3");
         }
 
         public Project GetProject1()

@@ -4,10 +4,15 @@ namespace ReferencesSwitcherForDotNet.Library
 {
     public class ConsoleUserInteraction : IUserInteraction
     {
-        public bool AskQuestion(string question)
+        public string AskQuestion(string question)
         {
-            Console.WriteLine(question + " [Y or N + Enter]");
-            return Console.ReadLine()?.ToLower() == "y";
+            Console.WriteLine(question);
+            return Console.ReadLine();
+        }
+
+        public bool AskYesNoQuestion(string question)
+        {
+            return AskQuestion(question + " [Y or N + Enter]")?.ToLower() == "y";
         }
 
         public void DisplayMessage(string message)

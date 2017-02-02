@@ -26,8 +26,10 @@ namespace ReferencesSwitcherForDotNet.App.Console
                 var switcher = new SolutionReferencesSwitcher(config);
                 if (arguments.ShouldSwitch)
                     arguments.SolutionsFullPath.ForEach(x=>switcher.Switch(x));
-                else
+                else if (arguments.ShouldRollback)
                     arguments.SolutionsFullPath.ForEach(x=>switcher.Rollback(x));
+                else if (arguments.ShouldSwitchMissingProjectReferences)
+                    arguments.SolutionsFullPath.ForEach(x=>switcher.SwitchMissingProjectReferences(x));
             }
             catch (Exception e)
             {

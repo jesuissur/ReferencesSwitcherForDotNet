@@ -50,9 +50,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Project5\MissingProject.csproj">
+    <ProjectReference Include="..\ProjectMissing\MissingProject.csproj">
       <Project>{03678911-1d4f-4fe1-ab70-8443651c7fc0}</Project>
       <Name>MissingProject</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AnotherProject.csproj">
+      <Project>{C7599BDA-7ED5-4CB6-9B44-E835854D3332}</Project>
+      <Name>AnotherProject</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
